@@ -269,8 +269,9 @@ function renderDashboard() {
 // ==========================================================================
 function renderStudents() {
   const tbody = document.getElementById('tbodySiswa');
-  const searchVal = (document.getElementById('searchSiswaInput').value || '').toLowerCase().trim();
-  const filterVal = document.getElementById('filterStatusSiswa').value;
+  const searchVal = (document.getElementById('searchSiswaInput')?.value || '').toLowerCase().trim();
+  const filterVal = document.getElementById('filterStatusSiswa')?.value || 'all';
+  const sortVal = document.getElementById('sortSiswa')?.value || 'abjad';
 
   const filtered = state.students.filter(student => {
     const matchSearch = student.nama.toLowerCase().includes(searchVal);
@@ -279,6 +280,12 @@ function renderStudents() {
                         (filterVal === 'nunggak' && student.status === 'Nunggak');
     return matchSearch && matchFilter;
   });
+
+  if (sortVal === 'abjad') {
+    filtered.sort((a, b) => a.nama.localeCompare(b.nama, 'id', { sensitivity: 'base' }));
+  } else if (sortVal === 'kelompok') {
+    filtered.sort((a, b) => a.id.localeCompare(b.id));
+  }
 
   if (filtered.length === 0) {
     tbody.innerHTML = `
@@ -1029,6 +1036,7 @@ function setupNavigationAndModals() {
 
   document.getElementById('searchSiswaInput')?.addEventListener('input', renderStudents);
   document.getElementById('filterStatusSiswa')?.addEventListener('change', renderStudents);
+  document.getElementById('sortSiswa')?.addEventListener('change', renderStudents);
   document.getElementById('searchMutasiInput')?.addEventListener('input', renderTransactions);
   document.getElementById('filterTipeMutasi')?.addEventListener('change', renderTransactions);
   document.getElementById('filterKategoriMutasi')?.addEventListener('change', renderTransactions);
