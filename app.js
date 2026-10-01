@@ -311,7 +311,16 @@ function renderStudents() {
           <div class="student-profile-cell">
             <div class="student-avatar ${student.gender === 'P' ? 'avatar-p' : 'avatar-l'}">${initials}</div>
             <div>
-              <strong class="student-name">${escapeHtml(student.nama)}</strong>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <strong class="student-name">${escapeHtml(student.nama)}</strong>
+                <button 
+                  type="button" 
+                  class="btn-edit-name" 
+                  onclick="openEditStudentModal('${student.id}')" 
+                  title="Ubah / Custom Nama Siswa"
+                  aria-label="Ubah Nama ${escapeHtml(student.nama)}"
+                >✏️</button>
+              </div>
               <div class="student-meta-sub">
                 <span>${student.gender === 'P' ? 'Perempuan' : 'Laki-laki'}</span>
                 <span>•</span>
@@ -412,6 +421,20 @@ function renderCustomRecentChips() {
     });
   }
 }
+
+// Open Modal Ubah / Custom Nama Siswa
+window.openEditStudentModal = function(studentId) {
+  const student = state.students.find(s => s.id === studentId);
+  if (!student) return;
+
+  document.getElementById('editStudentId').value = student.id;
+  document.getElementById('inputEditStudentName').value = student.nama;
+  document.getElementById('selectEditStudentGender').value = student.gender || 'L';
+  document.getElementById('errorEditStudentName').textContent = '';
+
+  document.getElementById('modalEditStudent')?.classList.remove('hidden');
+  setTimeout(() => document.getElementById('inputEditStudentName')?.focus(), 120);
+};
 
 // Open Modal Custom / Manual Payment (Bisa 6k, 7k, 8k, dll)
 window.openCustomPayModal = function(studentId) {
@@ -1009,7 +1032,65 @@ function setupNavigationAndModals() {
     closeCustomModal();
   });
 
-  [modalTx, modalAndroid, modalCustomPay].forEach(modal => {
+  // Modal Edit Student Name Listeners
+  const modalEditStudent = document.getElementById('modalEditStudent');
+  const btnCloseEditStudent = document.getElementById('btnCloseEditStudentModal');
+  const btnCancelEditStudent = document.getElementById('btnCancelEditStudentModal');
+  const formEditStudent = document.getElementById('formEditStudent');
+
+  const closeEditStudentModal = () => modalEditStudent?.classList.add('hidden');
+  btnCloseEditStudent?.addEventListener('click', closeEditStudentModal);
+  btnCancelEditStudent?.addEventListener('click', closeEditStudentModal);
+
+  document.getElementById('btnCustomPayEditName')?.addEventListener('click', () => {
+    const studentId = document.getElementById('customPayStudentId')?.value;
+    if (studentId) openEditStudentModal(studentId);
+  });
+
+  formEditStudent?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const studentId = document.getElementById('editStudentId').value;
+    const nameInput = document.getElementById('inputEditStudentName');
+    const genderInput = document.getElementById('selectEditStudentGender');
+    const errEl = document.getElementById('errorEditStudentName');
+    const newName = nameInput.value.trim();
+
+    if (!newName) {
+      errEl.textContent = 'Nama siswa tidak boleh kosong!';
+      return;
+    }
+
+    const student = state.students.find(s => s.id === studentId);
+    if (!student) return;
+
+    const oldName = student.nama;
+    student.nama = newName;
+    student.gender = genderInput.value;
+
+    // Sinkronkan nama di transaksi kas yang terkait dengan siswa ini
+    state.transactions.forEach(tx => {
+      if (tx.studentId === student.id || tx.pihak === oldName) {
+        tx.pihak = newName;
+        tx.keterangan = tx.keterangan.replace(oldName, newName);
+      }
+    });
+
+    saveState();
+    renderStudents();
+    renderTransactions();
+
+    // Jika modal custom pay sedang aktif untuk siswa ini, perbarui nama yang tertampil
+    const currentCustomId = document.getElementById('customPayStudentId')?.value;
+    if (currentCustomId === student.id) {
+      document.getElementById('customPayStudentName').textContent = student.nama;
+      document.getElementById('customPayKeterangan').value = `Iuran kas siswa ${student.nama}`;
+    }
+
+    closeEditStudentModal();
+    showToast(`Nama siswa berhasil diubah menjadi "${newName}"!`, 'success');
+  });
+
+  [modalTx, modalAndroid, modalCustomPay, modalEditStudent].forEach(modal => {
     modal?.addEventListener('click', (e) => {
       if (e.target === modal) {
         modal.classList.add('hidden');

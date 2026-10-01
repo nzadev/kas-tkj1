@@ -804,6 +804,30 @@ body {
   transform: scale(0.92);
 }
 
+.btn-edit-name {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 13px;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.btn-edit-name:hover {
+  opacity: 1;
+  background-color: #eff6ff;
+  color: #2563eb;
+  transform: scale(1.15);
+}
+.btn-edit-name:active {
+  transform: scale(0.95);
+}
+
 .badge-status {
   display: inline-block;
   font-size: 11px;
