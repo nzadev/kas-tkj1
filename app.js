@@ -138,7 +138,8 @@ const INITIAL_TRANSACTIONS = [
 // Global State
 let state = {
   students: [],
-  transactions: []
+  transactions: [],
+  recentCustomNominals: []
 };
 
 let deferredPrompt = null;
@@ -153,15 +154,18 @@ function loadState() {
       const parsed = JSON.parse(rawData);
       state.students = parsed.students || INITIAL_STUDENTS;
       state.transactions = parsed.transactions || INITIAL_TRANSACTIONS;
+      state.recentCustomNominals = Array.isArray(parsed.recentCustomNominals) ? parsed.recentCustomNominals : [];
     } else {
       state.students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
       state.transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+      state.recentCustomNominals = [];
       saveState();
     }
   } catch (error) {
     console.error('Gagal membaca data dari localStorage:', error);
     state.students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
     state.transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+    state.recentCustomNominals = [];
   }
 }
 
@@ -354,6 +358,54 @@ function renderStudents() {
   }).join('');
 }
 
+// Render Dynamic Recent Chips for Custom Nominal (Awalnya kosong, otomatis terisi nominal yang pernah diketik)
+function renderCustomRecentChips() {
+  const container = document.getElementById('customPresetChips');
+  if (!container) return;
+
+  const nominals = state.recentCustomNominals || [];
+  if (nominals.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 2px;">
+      <span style="font-size: 11px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase;">Nominal Terakhir:</span>
+      <button type="button" class="btn-chip-clear" id="btnClearRecentChips" title="Bersihkan riwayat nominal">✕</button>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 6px; width: 100%;">
+      ${nominals.map(nom => `
+        <button type="button" class="btn-chip-recent" data-nominal="${nom}">
+          Rp ${Number(nom).toLocaleString('id-ID')}
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  container.querySelectorAll('.btn-chip-recent').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.getAttribute('data-nominal');
+      const input = document.getElementById('customPayNominal');
+      if (input && val) {
+        input.value = val;
+        document.getElementById('errorCustomNominal').textContent = '';
+        input.focus();
+      }
+    });
+  });
+
+  const btnClear = document.getElementById('btnClearRecentChips');
+  if (btnClear) {
+    btnClear.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.recentCustomNominals = [];
+      saveState();
+      renderCustomRecentChips();
+    });
+  }
+}
+
 // Open Modal Custom / Manual Payment (Bisa 6k, 7k, 8k, dll)
 window.openCustomPayModal = function(studentId) {
   const student = state.students.find(s => s.id === studentId);
@@ -368,6 +420,8 @@ window.openCustomPayModal = function(studentId) {
 
   const radios = document.getElementsByName('customPayAction');
   if (radios.length > 0) radios[0].checked = true;
+
+  renderCustomRecentChips();
 
   document.getElementById('modalCustomPay')?.classList.remove('hidden');
   setTimeout(() => document.getElementById('customPayNominal')?.focus(), 120);
@@ -599,12 +653,17 @@ function setupBackupAndExport() {
       try {
         const imported = JSON.parse(event.target.result);
         if (imported.students && imported.transactions) {
-          state = imported;
+          state = {
+            students: imported.students,
+            transactions: imported.transactions,
+            recentCustomNominals: Array.isArray(imported.recentCustomNominals) ? imported.recentCustomNominals : []
+          };
           saveState();
           renderDashboard();
           renderStudents();
           renderTransactions();
           renderCategoryBreakdown();
+          renderCustomRecentChips();
           showToast('Data berhasil di-restore dari file backup!', 'success');
         } else {
           showToast('Format file backup tidak valid!', 'danger');
@@ -864,17 +923,6 @@ function setupNavigationAndModals() {
   btnCloseCustomPay?.addEventListener('click', closeCustomModal);
   btnCancelCustomPay?.addEventListener('click', closeCustomModal);
 
-  // Preset Chips for Custom Pay
-  document.querySelectorAll('.btn-chip-custom').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const inputNom = document.getElementById('customPayNominal');
-      if (inputNom && btn.dataset.customNom) {
-        inputNom.value = btn.dataset.customNom;
-        document.getElementById('errorCustomNominal').textContent = '';
-      }
-    });
-  });
-
   // Submit Handler for Custom Pay Form
   formCustomPay?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -887,6 +935,12 @@ function setupNavigationAndModals() {
       errNom.textContent = 'Nominal minimal Rp 500 dan harus berupa angka!';
       return;
     }
+
+    // Rekam nominal yang diketik manual ke recent chips (unik, urutan terbaru, maksimal 6 nominal)
+    if (!Array.isArray(state.recentCustomNominals)) {
+      state.recentCustomNominals = [];
+    }
+    state.recentCustomNominals = [nominal, ...state.recentCustomNominals.filter(n => n !== nominal)].slice(0, 6);
 
     const action = Array.from(document.getElementsByName('customPayAction')).find(r => r.checked)?.value || 'tambah';
     const student = state.students.find(s => s.id === studentId);
@@ -943,6 +997,7 @@ function setupNavigationAndModals() {
     renderStudents();
     renderTransactions();
     renderCategoryBreakdown();
+    renderCustomRecentChips();
 
     closeCustomModal();
   });
@@ -967,6 +1022,7 @@ function setupNavigationAndModals() {
       renderStudents();
       renderTransactions();
       renderCategoryBreakdown();
+      renderCustomRecentChips();
       showToast('Data berhasil di-reset ke kondisi awal!', 'success');
     }
   });
@@ -1048,6 +1104,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderStudents();
   renderTransactions();
   renderCategoryBreakdown();
+  renderCustomRecentChips();
   setupFormHandler();
   setupNavigationAndModals();
   setupBackupAndExport();

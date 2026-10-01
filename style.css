@@ -758,6 +758,52 @@ body {
   border-color: var(--color-danger);
 }
 
+.btn-chip-recent {
+  background-color: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  color: var(--color-text-main);
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+.btn-chip-recent:hover {
+  background-color: #eff6ff;
+  border-color: #2563eb;
+  color: #2563eb;
+}
+.btn-chip-recent:active {
+  transform: scale(0.95);
+  background-color: #dbeafe;
+}
+
+.btn-chip-clear {
+  background: transparent;
+  border: 1px dashed #cbd5e1;
+  color: var(--color-text-muted);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.15s;
+}
+.btn-chip-clear:hover {
+  background-color: var(--color-danger-bg);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.btn-chip-clear:active {
+  transform: scale(0.92);
+}
+
 .badge-status {
   display: inline-block;
   font-size: 11px;

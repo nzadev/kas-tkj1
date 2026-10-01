@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2.6">
+  <link rel="stylesheet" href="./style.css?v=2.8">
 </head>
 <body>
 
@@ -450,14 +450,8 @@
             <span class="currency-prefix">Rp</span>
             <input type="number" id="customPayNominal" class="form-control form-control-lg" placeholder="Bisa ketik 6000, 7000, 8000..." min="500" step="500" required>
           </div>
-          <!-- Quick Preset Chips -->
-          <div class="preset-chips">
-            <button type="button" class="btn-chip btn-chip-custom" data-custom-nom="6000">Rp 6.000</button>
-            <button type="button" class="btn-chip btn-chip-custom" data-custom-nom="7000">Rp 7.000</button>
-            <button type="button" class="btn-chip btn-chip-custom" data-custom-nom="8000">Rp 8.000</button>
-            <button type="button" class="btn-chip btn-chip-custom" data-custom-nom="9000">Rp 9.000</button>
-            <button type="button" class="btn-chip btn-chip-custom" data-custom-nom="15000">Rp 15.000</button>
-          </div>
+          <!-- Dynamic Recent Custom Chips (Awalnya Kosong, Otomatis Muncul Nominal yang Diketik Manual) -->
+          <div id="customPresetChips" class="preset-chips" style="margin-top: 8px;"></div>
           <span class="field-error-msg" id="errorCustomNominal"></span>
         </div>
 
@@ -499,6 +493,6 @@
   <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
   <!-- JavaScript Core -->
-  <script src="./app.js?v=2.6"></script>
+  <script src="./app.js?v=2.8"></script>
 </body>
 </html>
