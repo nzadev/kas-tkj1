@@ -5,21 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>KAS-TKJ1 | Sistem Kas & Monitoring Iuran XII TKJ 1</title>
   <meta name="description" content="Sistem Informasi Buku Kas & Monitoring Iuran Siswa Kelas XII TKJ 1 SMK Kartika X-1">
-  <meta name="theme-color" content="#1e3a8a">
+  <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <!-- Modern Inter Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-  <!-- Top Announcement Bar (Project Identity & Grading Requirements) -->
-  <aside class="top-meta-bar" aria-label="Informasi Penilaian">
+  <!-- Hidden File Input for Restore -->
+  <input type="file" id="inputRestoreFile" accept=".json" style="display: none;" aria-hidden="true">
+
+  <!-- Top Announcement Bar (Project Identity & Grading Standards) -->
+  <aside class="top-meta-bar" aria-label="Informasi Penilaian Proyek">
     <div class="meta-container">
       <div class="meta-tag-group">
-        <span class="meta-badge-dark">SMK KARTIKA X-1</span>
-        <span class="meta-badge-sub">XII TKJ 1</span>
+        <span class="meta-badge-school">SMK KARTIKA X-1</span>
+        <span class="meta-badge-class">XII TKJ 1</span>
         <span class="meta-divider">•</span>
         <span class="meta-text">Pengampu: <strong>Allan Parindera, S.Kom.</strong></span>
       </div>
@@ -34,14 +41,17 @@
     <div class="header-container">
       <div class="brand-block">
         <div class="brand-logo" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="5" width="20" height="14" rx="2"></rect>
             <line x1="2" y1="10" x2="22" y2="10"></line>
             <circle cx="16" cy="15" r="1.5" fill="currentColor"></circle>
           </svg>
         </div>
         <div>
-          <h1 class="brand-title">KAS-TKJ1</h1>
+          <div class="brand-title-wrap">
+            <h1 class="brand-title">KAS-TKJ1</h1>
+            <span class="brand-version-pill">v2.0 Pro</span>
+          </div>
           <p class="brand-subtitle">Sistem Kas & Monitoring Iuran Kelas XII TKJ 1</p>
         </div>
       </div>
@@ -56,11 +66,19 @@
           <span class="btn-icon">📱</span>
           <span>Android App</span>
         </button>
-        <button id="btnPrintReport" class="btn btn-outline" type="button" title="Cetak Rekap Kas">
-          <span class="btn-icon">🖨️</span>
-          <span class="hide-mobile">Cetak</span>
+        <button id="btnExportBackup" class="btn btn-outline" type="button" title="Download Backup File JSON">
+          <span class="btn-icon">💾</span>
+          <span class="hide-mobile">Backup</span>
         </button>
-        <button id="btnResetData" class="btn btn-danger-outline" type="button" title="Reset ke data awal">
+        <button id="btnTriggerRestore" class="btn btn-outline" type="button" title="Upload & Restore Data JSON">
+          <span class="btn-icon">📥</span>
+          <span class="hide-mobile">Restore</span>
+        </button>
+        <button id="btnExportCsv" class="btn btn-outline" type="button" title="Export Rekap Kas ke File Excel CSV">
+          <span class="btn-icon">📊</span>
+          <span class="hide-mobile">Excel CSV</span>
+        </button>
+        <button id="btnResetData" class="btn btn-danger-outline" type="button" title="Reset data kas ke awal">
           <span class="btn-icon">🔄</span>
           <span class="hide-mobile">Reset</span>
         </button>
@@ -68,17 +86,17 @@
     </div>
   </header>
 
-  <!-- PWA Install Prompt Banner for Android (Dispatches when beforeinstallprompt fires) -->
+  <!-- PWA Install Prompt Banner for Android -->
   <section id="pwaBanner" class="pwa-install-banner hidden" aria-label="Install Aplikasi Android">
     <div class="pwa-banner-content">
       <div class="pwa-icon">📱</div>
       <div class="pwa-text">
-        <strong>Pasang KAS-TKJ1 di Layar Utama HP?</strong>
-        <p>Bisa dibuka offline, cepat, dan tampil layar penuh layaknya aplikasi Android bawaan.</p>
+        <strong>Pasang KAS-TKJ1 di Layar Utama HP Android Kamu?</strong>
+        <p>Bisa dibuka offline, cepat, tanpa kuota, dan tampil <em>full-screen</em> seperti aplikasi Play Store.</p>
       </div>
       <div class="pwa-actions">
         <button id="btnInstallPwa" class="btn btn-sm btn-success" type="button">Pasang Sekarang</button>
-        <button id="btnDismissPwa" class="btn btn-sm btn-outline" type="button">Nanti</button>
+        <button id="btnDismissPwa" class="btn btn-sm btn-outline-light" type="button">Nanti</button>
       </div>
     </div>
   </section>
@@ -86,37 +104,46 @@
   <!-- Main Container -->
   <main class="main-wrapper">
 
-    <!-- Stat Metric Cards (Kalkulasi Otomatis 40% Kriteria) -->
+    <!-- Stat Metric Cards (Kalkulasi Presisi Matematika) -->
     <section class="stat-grid" aria-label="Ringkasan Saldo dan Metrik Kas">
       
       <!-- Card Saldo -->
       <article class="stat-card stat-card-balance">
         <div class="stat-card-header">
           <span class="stat-label">SISA SALDO KAS AKTIF</span>
-          <span class="status-indicator-badge badge-active" id="badgeStatusKas">Status: Aman</span>
+          <span class="status-indicator-badge tag-green" id="badgeStatusKas">● Saldo Aman</span>
         </div>
         <div class="stat-value" id="valSaldoKas">Rp 0</div>
-        <p class="stat-helper">Kalkulasi: Total Pemasukan dikurangi Total Pengeluaran</p>
+        <div class="stat-footer-bar">
+          <span class="stat-helper">Kalkulasi: <strong>Total Masuk - Total Keluar</strong></span>
+          <span class="trend-badge trend-up">Aktif & Sinkron</span>
+        </div>
       </article>
 
       <!-- Card Pemasukan -->
       <article class="stat-card stat-card-income">
         <div class="stat-card-header">
           <span class="stat-label">TOTAL UANG MASUK</span>
-          <span class="stat-icon-tag tag-green">📥 Arus Masuk</span>
+          <span class="stat-icon-tag tag-green">📥 Pemasukan</span>
         </div>
         <div class="stat-value text-green" id="valTotalMasuk">Rp 0</div>
-        <p class="stat-helper" id="textDetailMasuk">0 transaksi tercatat</p>
+        <div class="stat-footer-bar">
+          <span class="stat-helper" id="textDetailMasuk">0 transaksi kas masuk</span>
+          <span class="pill-info">Iuran 27 Siswa</span>
+        </div>
       </article>
 
       <!-- Card Pengeluaran -->
       <article class="stat-card stat-card-expense">
         <div class="stat-card-header">
           <span class="stat-label">TOTAL PENGELUARAN</span>
-          <span class="stat-icon-tag tag-red">📤 Arus Keluar</span>
+          <span class="stat-icon-tag tag-red">📤 Pengeluaran</span>
         </div>
         <div class="stat-value text-red" id="valTotalKeluar">Rp 0</div>
-        <p class="stat-helper" id="textDetailKeluar">0 mutasi belanja/kegiatan</p>
+        <div class="stat-footer-bar">
+          <span class="stat-helper" id="textDetailKeluar">0 mutasi belanja/kegiatan</span>
+          <span class="pill-info-red">Operasional & Alat</span>
+        </div>
       </article>
 
       <!-- Card Kepatuhan Siswa -->
@@ -129,12 +156,15 @@
         <div class="progress-bar-container" aria-hidden="true">
           <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
         </div>
-        <p class="stat-helper" id="textSiswaNunggak">0 siswa belum melunasi kas</p>
+        <div class="stat-footer-bar">
+          <span class="stat-helper" id="textSiswaNunggak">0 siswa belum melunasi kas</span>
+          <span class="pill-info-blue">Target: Rp 20.000/bln</span>
+        </div>
       </article>
 
     </section>
 
-    <!-- Main Navigation Views Controller (For Tablet/Mobile Tab Navigation) -->
+    <!-- Navigation Switcher for Views -->
     <nav class="view-switch-nav" aria-label="Navigasi Tampilan">
       <button class="view-tab-btn active" data-target="viewSiswa" type="button">
         👥 Monitoring 27 Siswa
@@ -143,7 +173,7 @@
         📜 Buku Mutasi Transaksi
       </button>
       <button class="view-tab-btn" data-target="viewLaporan" type="button">
-        📊 Ringkasan Kategori
+        📊 Alokasi & Rekap Anggaran
       </button>
     </nav>
 
@@ -153,7 +183,7 @@
         <div class="section-card-header">
           <div>
             <h2 class="section-title">Monitoring Iuran 27 Siswa XII TKJ 1</h2>
-            <p class="section-desc">Pencatatan status iuran wajib mingguan (Rp 5.000/minggu) per siswa sesuai absensi kelas.</p>
+            <p class="section-desc">Pencatatan status iuran wajib mingguan (Rp 5.000/minggu x 4) per siswa sesuai absensi kelas.</p>
           </div>
           <!-- Quick Filter Siswa -->
           <div class="filter-controls">
@@ -173,12 +203,12 @@
           <table class="data-table" id="tableSiswa">
             <thead>
               <tr>
-                <th style="width: 50px;">No</th>
+                <th style="width: 45px; text-align: center;">No</th>
                 <th>Nama Siswa (XII TKJ 1)</th>
                 <th>Asal Kelompok</th>
-                <th>Terkumpul</th>
-                <th>Status Kas</th>
-                <th style="text-align: center; width: 170px;">Aksi Cepat</th>
+                <th style="width: 170px;">Terkumpul</th>
+                <th style="width: 150px;">Status Kas</th>
+                <th style="text-align: center; width: 150px;">Aksi Cepat</th>
               </tr>
             </thead>
             <tbody id="tbodySiswa">
@@ -195,12 +225,12 @@
         <div class="section-card-header">
           <div>
             <h2 class="section-title">Buku Mutasi & Rekap Transaksi Kas</h2>
-            <p class="section-desc">Riwayat seluruh arus kas masuk dan pengeluaran operasional kelas tersimpan permanen di memori lokal.</p>
+            <p class="section-desc">Riwayat seluruh arus kas masuk dan pengeluaran operasional kelas tersimpan aman di memori lokal.</p>
           </div>
           <!-- Filters for Mutations -->
           <div class="filter-controls">
             <div class="search-input-box">
-              <input type="text" id="searchMutasiInput" placeholder="Cari keterangan..." aria-label="Cari Mutasi">
+              <input type="text" id="searchMutasiInput" placeholder="Cari transaksi..." aria-label="Cari Mutasi">
             </div>
             <select id="filterTipeMutasi" class="select-control" aria-label="Filter Tipe">
               <option value="all">Semua Arus Kas</option>
@@ -230,7 +260,7 @@
                 <th>Keterangan / Keperluan</th>
                 <th style="width: 150px;">Pihak Terkait</th>
                 <th style="text-align: right; width: 130px;">Nominal</th>
-                <th style="text-align: center; width: 80px;">Aksi</th>
+                <th style="text-align: center; width: 60px;">Aksi</th>
               </tr>
             </thead>
             <tbody id="tbodyMutasi">
@@ -296,12 +326,11 @@
           </select>
         </div>
 
-        <!-- Dynamic Target: Pilihan Siswa jika Iuran, atau Pihak Luar jika Pengeluaran -->
+        <!-- Dynamic Target -->
         <div class="form-group" id="groupPilihanSiswa">
           <label for="selectSiswaTx" class="form-label">Nama Siswa Pembayar (XII TKJ 1)</label>
           <select id="selectSiswaTx" class="form-control">
             <option value="">-- Pilih Siswa atau Umum --</option>
-            <!-- Filled dynamically with 27 students -->
           </select>
         </div>
 
@@ -317,7 +346,7 @@
             <span class="currency-prefix">Rp</span>
             <input type="number" id="inputNominal" class="form-control form-control-lg" placeholder="5000" min="500" step="500" required>
           </div>
-          <!-- Quick Preset Chips -->
+          <!-- Preset Chips -->
           <div class="preset-chips">
             <button type="button" class="btn-chip" data-nominal="5000">Rp 5.000</button>
             <button type="button" class="btn-chip" data-nominal="10000">Rp 10.000</button>
@@ -358,7 +387,7 @@
       </div>
       <div class="modal-body-scrollable">
         <div class="guide-card">
-          <h4>1. Cara Install Jadi Aplikasi di HP Android (PWA WebAPK)</h4>
+          <h4>1. Cara Install Jadi Aplikasi di HP Android (PWA Standalone)</h4>
           <p>Aplikasi ini sudah dilengkapi <code>manifest.json</code> & <code>sw.js</code> offline ready:</p>
           <ol class="guide-steps">
             <li>Buka website ini lewat browser <strong>Google Chrome</strong> di HP Android kamu.</li>
@@ -368,16 +397,13 @@
         </div>
 
         <div class="guide-card">
-          <h4>2. Cara Deploy Gratis ke GitHub Pages (Online 24 Jam)</h4>
-          <p>Agar bisa diakses oleh guru dan teman sekelas tanpa tergantung laptop lokal:</p>
-          <pre class="code-snippet"><code>cd /home/nza/Projects/kas-tkj
-git init
-git add .
-git commit -m "feat: Sistem Kas XII TKJ 1 v1.0"
-git remote add origin https://github.com/USERNAME/kas-tkj1.git
-git branch -M main
-git push -u origin main</code></pre>
-          <p class="guide-note">Setelah dipush, buka repo di GitHub ➔ <strong>Settings</strong> ➔ <strong>Pages</strong> ➔ Branch: <strong>main / root</strong> ➔ Klik <strong>Save</strong>. Website langsung online!</p>
+          <h4>2. Backup & Restore Data (Aman Dari Hapus Cache Browser)</h4>
+          <p>Takut data kas terhapus kalau browser di-clear? Kamu bisa mendownload file cadangan kapan saja:</p>
+          <ul class="guide-steps">
+            <li>Klik tombol <strong>"💾 Backup"</strong> di toolbar atas untuk mendownload file <code>.json</code> cadangan.</li>
+            <li>Klik tombol <strong>"📥 Restore"</strong> kapan saja untuk mengembalikan data dari file backup.</li>
+            <li>Klik tombol <strong>"📊 Excel CSV"</strong> untuk membuka laporan keuangan kas di Microsoft Excel atau Google Sheets.</li>
+          </ul>
         </div>
       </div>
       <div class="modal-footer">

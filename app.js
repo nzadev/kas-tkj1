@@ -1,13 +1,14 @@
 /**
- * KAS-TKJ1: Core Logic & LocalStorage Engine
+ * KAS-TKJ1: Core Logic, Exact Mathematical Engine & LocalStorage Manager
  * Sistem Informasi Kas & Monitoring Iuran Kelas XII TKJ 1 - SMK Kartika X-1
  * Kelompok 4: Nabil Zaenal Assyqin (Anchor), Kaila, Keisya, Irpan, Raihan, Dzakii
  */
 
-const STORAGE_KEY = 'kas_tkj1_storage_v1';
-const TARIF_IURAN_TARGET = 20000; // Target kas per siswa per bulan (Rp 5.000/minggu x 4)
+const STORAGE_KEY = 'kas_tkj1_storage_v2';
+const TARIF_IURAN_TARGET = 20000; // Target bulanan (Rp 5.000 x 4 minggu)
 
 // 27 Nama Siswa Riil Sesuai Hasil Undian Resmi di Lembar Tugas Pak Allan
+// Total Terkumpul: 20 Lunas (Rp 20.000) + 3 @ 15.000 + 3 @ 10.000 + 1 @ 5.000 = Rp 480.000 (SINKRON 100%)
 const INITIAL_STUDENTS = [
   // Kelompok 1
   { id: 'std-01', nama: 'FYARA TUZ ZAHRA', gender: 'P', kelompok: 'Kelompok 1', terbayar: 20000, status: 'Lunas' },
@@ -47,16 +48,19 @@ const INITIAL_STUDENTS = [
   { id: 'std-27', nama: 'Shapa Alipiandi', gender: 'L', kelompok: 'Kelompok 5', terbayar: 10000, status: 'Nunggak' }
 ];
 
-// Transaksi Riil Bawaan Awal (Data Dummy Terverifikasi untuk Uji Live Demo)
+// Transaksi Riil Bawaan Awal (Sinkron 100% dengan Total Uang Iuran Siswa)
+// Total Masuk = 135k + 130k + 115k + 100k = Rp 480.000 (Pas dengan jumlah iuran 27 siswa)
+// Total Keluar = 28k + 45k + 50k + 22k = Rp 145.000
+// Saldo Kas Sisa = Rp 480.000 - Rp 145.000 = Rp 335.000
 const INITIAL_TRANSACTIONS = [
   {
     id: 'tx-101',
     tanggal: '2026-09-02',
     tipe: 'masuk',
     kategori: 'Iuran Kas Siswa',
-    keterangan: 'Iuran kas minggu ke-1 September (20 Siswa)',
-    pihak: 'Bendahara Kas',
-    nominal: 100000,
+    keterangan: 'Iuran Kas Minggu ke-1 (27 Siswa @ Rp 5.000)',
+    pihak: 'Bendahara Kelas',
+    nominal: 135000,
     studentId: null
   },
   {
@@ -64,34 +68,44 @@ const INITIAL_TRANSACTIONS = [
     tanggal: '2026-09-05',
     tipe: 'keluar',
     kategori: 'Operasional Kelas',
-    keterangan: 'Beli 3 buah Spidol Snowman Boardmarker + Isi Ulang Tinta',
+    keterangan: 'Beli 3 Spidol Snowman Boardmarker + Isi Ulang Tinta',
     pihak: 'Fotokopi & ATK Berkah',
     nominal: 28000,
     studentId: null
   },
   {
     id: 'tx-103',
-    tanggal: '2026-09-10',
+    tanggal: '2026-09-09',
     tipe: 'masuk',
     kategori: 'Iuran Kas Siswa',
-    keterangan: 'Iuran kas minggu ke-2 September (24 Siswa)',
-    pihak: 'Bendahara Kas',
-    nominal: 120000,
+    keterangan: 'Iuran Kas Minggu ke-2 (26 Siswa @ Rp 5.000)',
+    pihak: 'Bendahara Kelas',
+    nominal: 130000,
     studentId: null
   },
   {
     id: 'tx-104',
-    tanggal: '2026-09-14',
+    tanggal: '2026-09-12',
     tipe: 'keluar',
     kategori: 'Praktik Lab TKJ',
-    keterangan: 'Beli 1 Pack Konektor RJ45 Cat6 (50 Pcs) untuk Ujian Jaringan',
+    keterangan: 'Beli 1 Pack Konektor RJ45 Cat6 (50 Pcs) Ujian Jaringan',
     pihak: 'Toko Komputer Harco',
     nominal: 45000,
     studentId: null
   },
   {
     id: 'tx-105',
-    tanggal: '2026-09-18',
+    tanggal: '2026-09-16',
+    tipe: 'masuk',
+    kategori: 'Iuran Kas Siswa',
+    keterangan: 'Iuran Kas Minggu ke-3 (23 Siswa @ Rp 5.000)',
+    pihak: 'Bendahara Kelas',
+    nominal: 115000,
+    studentId: null
+  },
+  {
+    id: 'tx-106',
+    tanggal: '2026-09-19',
     tipe: 'keluar',
     kategori: 'Sosial & Jenguk',
     keterangan: 'Uang santunan & jenguk teman sekelas sakit',
@@ -100,38 +114,37 @@ const INITIAL_TRANSACTIONS = [
     studentId: null
   },
   {
-    id: 'tx-106',
-    tanggal: '2026-09-22',
+    id: 'tx-107',
+    tanggal: '2026-09-23',
+    tipe: 'masuk',
+    kategori: 'Iuran Kas Siswa',
+    keterangan: 'Iuran Kas Minggu ke-4 (20 Siswa Lunas @ Rp 5.000)',
+    pihak: 'Bendahara Kelas',
+    nominal: 100000,
+    studentId: null
+  },
+  {
+    id: 'tx-108',
+    tanggal: '2026-09-25',
     tipe: 'keluar',
     kategori: 'Operasional Kelas',
     keterangan: 'Fotokopi modul materi Uji Kompetensi Kejuruan (UKK)',
     pihak: 'Koperasi SMK Kartika X-1',
     nominal: 22000,
     studentId: null
-  },
-  {
-    id: 'tx-107',
-    tanggal: '2026-09-28',
-    tipe: 'masuk',
-    kategori: 'Iuran Kas Siswa',
-    keterangan: 'Iuran kas minggu ke-3 & 4 September',
-    pihak: 'Bendahara Kas',
-    nominal: 145000,
-    studentId: null
   }
 ];
 
-// State Global
+// Global State
 let state = {
   students: [],
   transactions: []
 };
 
-// PWA Deferred Prompt Handler
 let deferredPrompt = null;
 
 // ==========================================================================
-// 1. Inisialisasi & LocalStorage Persistence
+// 1. Data Persistence & LocalStorage
 // ==========================================================================
 function loadState() {
   try {
@@ -161,8 +174,13 @@ function saveState() {
   }
 }
 
+// Auto-save saat user menutup tab / reload
+window.addEventListener('beforeunload', () => {
+  saveState();
+});
+
 // ==========================================================================
-// 2. Kalkulasi Matematika & Metrik Dashboard
+// 2. Kalkulasi Presisi Matematika
 // ==========================================================================
 function calculateTotals() {
   const totalMasuk = state.transactions
@@ -183,6 +201,9 @@ function calculateTotals() {
   const siswaNunggak = totalSiswa - siswaLunas;
   const persenLunas = totalSiswa > 0 ? Math.round((siswaLunas / totalSiswa) * 100) : 0;
 
+  // Total uang iuran yang terkumpul dari seluruh siswa
+  const totalIuranSiswa = state.students.reduce((sum, curr) => sum + Number(curr.terbayar), 0);
+
   return {
     totalMasuk,
     totalKeluar,
@@ -192,7 +213,8 @@ function calculateTotals() {
     totalSiswa,
     siswaLunas,
     siswaNunggak,
-    persenLunas
+    persenLunas,
+    totalIuranSiswa
   };
 }
 
@@ -200,8 +222,12 @@ function formatRupiah(num) {
   return 'Rp ' + Number(num).toLocaleString('id-ID');
 }
 
+function getInitials(name) {
+  return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+}
+
 // ==========================================================================
-// 3. Render Dashboard Stat Cards
+// 3. Render Dashboard
 // ==========================================================================
 function renderDashboard() {
   const totals = calculateTotals();
@@ -212,30 +238,30 @@ function renderDashboard() {
 
   const badgeStatusKas = document.getElementById('badgeStatusKas');
   if (totals.saldoKas < 50000) {
-    badgeStatusKas.textContent = 'Status: Kritis';
+    badgeStatusKas.textContent = '● Kritis';
     badgeStatusKas.className = 'status-indicator-badge tag-red';
   } else {
-    badgeStatusKas.textContent = 'Status: Aman';
+    badgeStatusKas.textContent = '● Saldo Aman';
     badgeStatusKas.className = 'status-indicator-badge tag-green';
   }
 
   // Pemasukan
   document.getElementById('valTotalMasuk').textContent = formatRupiah(totals.totalMasuk);
-  document.getElementById('textDetailMasuk').textContent = `${totals.countMasuk} transaksi tercatat`;
+  document.getElementById('textDetailMasuk').textContent = `${totals.countMasuk} transaksi kas masuk`;
 
   // Pengeluaran
   document.getElementById('valTotalKeluar').textContent = formatRupiah(totals.totalKeluar);
-  document.getElementById('textDetailKeluar').textContent = `${totals.countKeluar} mutasi operasional`;
+  document.getElementById('textDetailKeluar').textContent = `${totals.countKeluar} mutasi belanja/kegiatan`;
 
   // Kepatuhan
   document.getElementById('valRasioLunas').textContent = `${totals.siswaLunas} / ${totals.totalSiswa}`;
   document.getElementById('valPersenLunas').textContent = `${totals.persenLunas}%`;
   document.getElementById('progressBarFill').style.width = `${totals.persenLunas}%`;
-  document.getElementById('textSiswaNunggak').textContent = `${totals.siswaNunggak} siswa belum melunasi kas`;
+  document.getElementById('textSiswaNunggak').textContent = `${totals.siswaNunggak} siswa nunggak kas`;
 }
 
 // ==========================================================================
-// 4. Render Tabel 27 Siswa
+// 4. Render Monitoring 27 Siswa
 // ==========================================================================
 function renderStudents() {
   const tbody = document.getElementById('tbodySiswa');
@@ -254,7 +280,7 @@ function renderStudents() {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align: center; padding: 24px; color: var(--color-text-muted);">
+        <td colspan="6" style="text-align: center; padding: 32px; color: var(--color-text-muted);">
           Tidak ada data siswa yang cocok dengan pencarian / filter.
         </td>
       </tr>
@@ -265,22 +291,31 @@ function renderStudents() {
   tbody.innerHTML = filtered.map((student, idx) => {
     const isLunas = student.status === 'Lunas';
     const sisaNunggak = Math.max(0, TARIF_IURAN_TARGET - student.terbayar);
+    const initials = getInitials(student.nama);
+    const mingguLunas = Math.min(4, Math.floor(student.terbayar / 5000));
 
     return `
       <tr>
-        <td style="font-weight: 700; color: var(--color-text-muted);">${idx + 1}</td>
+        <td style="font-weight: 700; color: var(--color-text-muted); text-align: center;">${idx + 1}</td>
         <td>
-          <strong>${escapeHtml(student.nama)}</strong>
-          <span style="font-size: 11px; color: var(--color-text-muted); display: block;">
-            Jenis Kelamin: ${student.gender === 'P' ? 'Perempuan' : 'Laki-laki'}
-          </span>
+          <div class="student-profile-cell">
+            <div class="student-avatar ${student.gender === 'P' ? 'avatar-p' : 'avatar-l'}">${initials}</div>
+            <div>
+              <strong class="student-name">${escapeHtml(student.nama)}</strong>
+              <div class="student-meta-sub">
+                <span>${student.gender === 'P' ? 'Perempuan' : 'Laki-laki'}</span>
+                <span>•</span>
+                <span>Lunas: <strong>${mingguLunas}/4 Minggu</strong></span>
+              </div>
+            </div>
+          </div>
         </td>
-        <td><span class="meta-group-badge">${escapeHtml(student.kelompok)}</span></td>
-        <td style="font-weight: 700;">
-          ${formatRupiah(student.terbayar)}
-          <span style="font-size: 11px; display: block; color: var(--color-text-muted);">
-            Target: ${formatRupiah(TARIF_IURAN_TARGET)}
-          </span>
+        <td><span class="group-pill">${escapeHtml(student.kelompok)}</span></td>
+        <td>
+          <div style="font-weight: 800; color: var(--color-text-main);">${formatRupiah(student.terbayar)}</div>
+          <div class="mini-progress-track">
+            <div class="mini-progress-bar" style="width: ${(student.terbayar / TARIF_IURAN_TARGET) * 100}%;"></div>
+          </div>
         </td>
         <td>
           <span class="badge-status ${isLunas ? 'badge-lunas' : 'badge-nunggak'}">
@@ -288,39 +323,47 @@ function renderStudents() {
           </span>
         </td>
         <td style="text-align: center;">
-          <button 
-            type="button" 
-            class="btn btn-sm ${isLunas ? 'btn-outline' : 'btn-success'}"
-            onclick="quickPayStudent('${student.id}')"
-            title="Catat pembayaran iuran"
-          >
-            ${isLunas ? '+ Bayar Lagi' : '➕ Bayar Rp 5.000'}
-          </button>
+          <div class="quick-action-btns">
+            <button 
+              type="button" 
+              class="btn btn-sm ${isLunas ? 'btn-outline' : 'btn-success'}"
+              onclick="quickPayStudent('${student.id}', 5000)"
+              title="Catat bayar Rp 5.000"
+            >
+              +5k
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-sm btn-outline"
+              onclick="quickPayStudent('${student.id}', 10000)"
+              title="Catat bayar Rp 10.000"
+            >
+              +10k
+            </button>
+          </div>
         </td>
       </tr>
     `;
   }).join('');
 }
 
-// Quick Payment Action (Demonstrasi Instan 5 Menit Live Demo)
-window.quickPayStudent = function(studentId) {
+// Quick Payment Action
+window.quickPayStudent = function(studentId, nominalTambah = 5000) {
   const student = state.students.find(s => s.id === studentId);
   if (!student) return;
 
-  const nominalTambah = 5000;
   student.terbayar += nominalTambah;
   if (student.terbayar >= TARIF_IURAN_TARGET) {
     student.status = 'Lunas';
   }
 
-  // Catat otomatis ke buku mutasi kas
   const today = new Date().toISOString().split('T')[0];
   const newTx = {
     id: 'tx-' + Date.now(),
     tanggal: today,
     tipe: 'masuk',
     kategori: 'Iuran Kas Siswa',
-    keterangan: `Iuran kas mingguan siswa ${student.nama}`,
+    keterangan: `Iuran kas siswa ${student.nama} (${formatRupiah(nominalTambah)})`,
     pihak: student.nama,
     nominal: nominalTambah,
     studentId: student.id
@@ -334,11 +377,11 @@ window.quickPayStudent = function(studentId) {
   renderTransactions();
   renderCategoryBreakdown();
 
-  showToast(`Iuran Rp 5.000 dari ${student.nama} berhasil dicatat!`, 'success');
+  showToast(`Iuran ${formatRupiah(nominalTambah)} dari ${student.nama} tersimpan!`, 'success');
 };
 
 // ==========================================================================
-// 5. Render Buku Mutasi Transaksi
+// 5. Render Buku Mutasi
 // ==========================================================================
 function renderTransactions() {
   const tbody = document.getElementById('tbodyMutasi');
@@ -358,8 +401,8 @@ function renderTransactions() {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" style="text-align: center; padding: 24px; color: var(--color-text-muted);">
-          Belum ada riwayat mutasi yang sesuai filter.
+        <td colspan="7" style="text-align: center; padding: 32px; color: var(--color-text-muted);">
+          Belum ada riwayat mutasi kas yang sesuai filter.
         </td>
       </tr>
     `;
@@ -371,16 +414,16 @@ function renderTransactions() {
 
     return `
       <tr>
-        <td style="font-size: 13px; font-weight: 600;">${tx.tanggal}</td>
+        <td style="font-size: 13px; font-weight: 600; font-family: monospace;">${tx.tanggal}</td>
         <td>
           <span class="badge-status ${isMasuk ? 'badge-masuk' : 'badge-keluar'}">
             ${isMasuk ? '📥 Masuk' : '📤 Keluar'}
           </span>
         </td>
-        <td><strong>${escapeHtml(tx.kategori)}</strong></td>
+        <td><strong class="category-tag">${escapeHtml(tx.kategori)}</strong></td>
         <td>${escapeHtml(tx.keterangan)}</td>
-        <td><span class="meta-group-badge">${escapeHtml(tx.pihak)}</span></td>
-        <td style="text-align: right; font-weight: 800; color: ${isMasuk ? 'var(--color-success)' : 'var(--color-danger)'};">
+        <td><span class="group-pill">${escapeHtml(tx.pihak)}</span></td>
+        <td style="text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; color: ${isMasuk ? 'var(--color-success)' : 'var(--color-danger)'};">
           ${isMasuk ? '+' : '-'} ${formatRupiah(tx.nominal)}
         </td>
         <td style="text-align: center;">
@@ -388,9 +431,9 @@ function renderTransactions() {
             type="button" 
             class="btn-action-delete" 
             onclick="deleteTransaction('${tx.id}')"
-            title="Hapus transaksi ini"
+            title="Hapus transaksi"
           >
-            🗑️ Hapus
+            🗑️
           </button>
         </td>
       </tr>
@@ -398,7 +441,6 @@ function renderTransactions() {
   }).join('');
 }
 
-// Hapus Transaksi (Rollback State)
 window.deleteTransaction = function(txId) {
   const index = state.transactions.findIndex(t => t.id === txId);
   if (index === -1) return;
@@ -408,7 +450,6 @@ window.deleteTransaction = function(txId) {
     return;
   }
 
-  // Jika ini transaksi iuran siswa, kurangi juga riwayat pembayaran siswa
   if (tx.studentId) {
     const student = state.students.find(s => s.id === tx.studentId);
     if (student) {
@@ -425,7 +466,7 @@ window.deleteTransaction = function(txId) {
   renderTransactions();
   renderCategoryBreakdown();
 
-  showToast('Transaksi berhasil dihapus dari memori lokal!', 'success');
+  showToast('Transaksi berhasil dihapus dari memori!', 'success');
 };
 
 // ==========================================================================
@@ -434,12 +475,12 @@ window.deleteTransaction = function(txId) {
 function renderCategoryBreakdown() {
   const container = document.getElementById('categoryBreakdownGrid');
   const categories = [
-    { name: 'Iuran Kas Siswa', tipe: 'masuk', color: 'var(--color-success)' },
-    { name: 'Praktik Lab TKJ', tipe: 'keluar', color: 'var(--color-danger)' },
-    { name: 'Operasional Kelas', tipe: 'keluar', color: 'var(--color-warning)' },
-    { name: 'Sosial & Jenguk', tipe: 'keluar', color: '#8b5cf6' },
-    { name: 'Acara & Lomba', tipe: 'keluar', color: '#06b6d4' },
-    { name: 'Lain-lain', tipe: 'keluar', color: 'var(--color-text-muted)' }
+    { name: 'Iuran Kas Siswa', tipe: 'masuk', color: 'var(--color-success)', icon: '💰' },
+    { name: 'Praktik Lab TKJ', tipe: 'keluar', color: 'var(--color-primary-light)', icon: '🔌' },
+    { name: 'Operasional Kelas', tipe: 'keluar', color: 'var(--color-warning)', icon: '✏️' },
+    { name: 'Sosial & Jenguk', tipe: 'keluar', color: '#8b5cf6', icon: '🤝' },
+    { name: 'Acara & Lomba', tipe: 'keluar', color: '#06b6d4', icon: '🏆' },
+    { name: 'Lain-lain', tipe: 'keluar', color: 'var(--color-text-muted)', icon: '📦' }
   ];
 
   container.innerHTML = categories.map(cat => {
@@ -448,22 +489,99 @@ function renderCategoryBreakdown() {
     const count = txList.length;
 
     return `
-      <div class="category-card" style="border-top: 4px solid ${cat.color};">
+      <div class="category-card" style="border-left: 5px solid ${cat.color};">
         <div class="category-card-header">
-          <span class="category-name">${escapeHtml(cat.name)}</span>
+          <span class="category-name">${cat.icon} ${escapeHtml(cat.name)}</span>
           <span class="stat-icon-tag ${cat.tipe === 'masuk' ? 'tag-green' : 'tag-red'}">
             ${cat.tipe === 'masuk' ? 'Pemasukan' : 'Pengeluaran'}
           </span>
         </div>
         <div class="category-amount" style="color: ${cat.color};">${formatRupiah(total)}</div>
-        <p class="stat-helper">${count} mutasi tercatat dalam kategori ini</p>
+        <p class="stat-helper">${count} mutasi tercatat</p>
       </div>
     `;
   }).join('');
 }
 
 // ==========================================================================
-// 7. Form Catat Transaksi Baru (Validasi Ketat Anti-AI Slop)
+// 7. Backup, Restore, dan Export Excel (CSV)
+// ==========================================================================
+function setupBackupAndExport() {
+  // Export JSON Backup
+  document.getElementById('btnExportBackup')?.addEventListener('click', () => {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state, null, 2));
+    const dlAnchor = document.createElement('a');
+    const dateStr = new Date().toISOString().split('T')[0];
+    dlAnchor.setAttribute('href', dataStr);
+    dlAnchor.setAttribute('download', `KAS_TKJ1_Backup_${dateStr}.json`);
+    dlAnchor.click();
+    showToast('File backup JSON berhasil didownload!', 'success');
+  });
+
+  // Restore JSON Backup
+  const fileInput = document.getElementById('inputRestoreFile');
+  document.getElementById('btnTriggerRestore')?.addEventListener('click', () => {
+    fileInput?.click();
+  });
+
+  fileInput?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const imported = JSON.parse(event.target.result);
+        if (imported.students && imported.transactions) {
+          state = imported;
+          saveState();
+          renderDashboard();
+          renderStudents();
+          renderTransactions();
+          renderCategoryBreakdown();
+          showToast('Data berhasil di-restore dari file backup!', 'success');
+        } else {
+          showToast('Format file backup tidak valid!', 'danger');
+        }
+      } catch (err) {
+        showToast('Gagal membaca file JSON!', 'danger');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  // Export Excel CSV
+  document.getElementById('btnExportCsv')?.addEventListener('click', () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Tanggal,Jenis,Kategori,Keterangan,Pihak Terkait,Nominal (Rp)\n";
+
+    state.transactions.forEach(t => {
+      const row = [
+        `"${t.tanggal}"`,
+        `"${t.tipe === 'masuk' ? 'Pemasukan' : 'Pengeluaran'}"`,
+        `"${t.kategori}"`,
+        `"${t.keterangan.replace(/"/g, '""')}"`,
+        `"${t.pihak.replace(/"/g, '""')}"`,
+        t.nominal
+      ].join(',');
+      csvContent += row + "\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Rekap_Mutasi_Kas_XII_TKJ_1_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Rekap Excel (CSV) berhasil didownload!', 'success');
+  });
+}
+
+// ==========================================================================
+// 8. Form Transaksi Baru (Validasi Ketat Anti-AI Slop)
 // ==========================================================================
 function setupFormHandler() {
   const form = document.getElementById('formTransaksi');
@@ -476,14 +594,11 @@ function setupFormHandler() {
   const inputKeterangan = document.getElementById('inputKeterangan');
   const inputTanggal = document.getElementById('inputTanggal');
 
-  // Isi dropdown siswa
   selectSiswa.innerHTML = '<option value="">-- Pilih Siswa (Atau Kosongkan jika Umum) --</option>' +
     state.students.map(s => `<option value="${s.id}">${escapeHtml(s.nama)} (${escapeHtml(s.kelompok)})</option>`).join('');
 
-  // Tanggal default hari ini
   inputTanggal.value = new Date().toISOString().split('T')[0];
 
-  // Preset Nominal Chips
   document.querySelectorAll('.btn-chip').forEach(btn => {
     btn.addEventListener('click', () => {
       inputNominal.value = btn.dataset.nominal;
@@ -491,7 +606,6 @@ function setupFormHandler() {
     });
   });
 
-  // Switch form tampilan berdasarkan tipe
   radioTipe.forEach(radio => {
     radio.addEventListener('change', () => {
       if (radio.value === 'masuk') {
@@ -506,7 +620,6 @@ function setupFormHandler() {
     });
   });
 
-  // Validasi Inline
   function validateNominal() {
     const val = Number(inputNominal.value);
     const err = document.getElementById('errorNominal');
@@ -532,7 +645,6 @@ function setupFormHandler() {
   inputNominal.addEventListener('input', validateNominal);
   inputKeterangan.addEventListener('input', validateKeterangan);
 
-  // Submit Handler
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -540,7 +652,7 @@ function setupFormHandler() {
     const isKetValid = validateKeterangan();
 
     if (!isNominalValid || !isKetValid) {
-      showToast('Mohon lengkapi formulir dengan data yang valid!', 'danger');
+      showToast('Mohon lengkapi formulir dengan benar!', 'danger');
       return;
     }
 
@@ -587,26 +699,23 @@ function setupFormHandler() {
     state.transactions.unshift(newTx);
     saveState();
 
-    // Re-render
     renderDashboard();
     renderStudents();
     renderTransactions();
     renderCategoryBreakdown();
 
-    // Reset Form & Tutup Modal
     form.reset();
     inputTanggal.value = new Date().toISOString().split('T')[0];
     document.getElementById('modalTransaksi').classList.add('hidden');
 
-    showToast(`Transaksi ${tipeSelected === 'masuk' ? 'pemasukan' : 'pengeluaran'} ${formatRupiah(nominal)} berhasil disimpan!`, 'success');
+    showToast(`Transaksi ${formatRupiah(nominal)} berhasil disimpan!`, 'success');
   });
 }
 
 // ==========================================================================
-// 8. Tab Navigation & Modal Listeners
+// 9. Tab Navigasi & Event Listeners
 // ==========================================================================
 function setupNavigationAndModals() {
-  // View Switch Tabs
   const tabButtons = document.querySelectorAll('.view-tab-btn, .bottom-nav-item');
   tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -626,7 +735,6 @@ function setupNavigationAndModals() {
     });
   });
 
-  // Modal Transaksi Trigger
   const modalTx = document.getElementById('modalTransaksi');
   const btnOpenModal = document.getElementById('btnOpenModal');
   const btnMobileAddTx = document.getElementById('btnMobileAddTx');
@@ -636,37 +744,33 @@ function setupNavigationAndModals() {
   const openTxModal = () => modalTx.classList.remove('hidden');
   const closeTxModal = () => modalTx.classList.add('hidden');
 
-  btnOpenModal.addEventListener('click', openTxModal);
-  if (btnMobileAddTx) btnMobileAddTx.addEventListener('click', openTxModal);
-  btnCloseModal.addEventListener('click', closeTxModal);
-  btnCancelModal.addEventListener('click', closeTxModal);
+  btnOpenModal?.addEventListener('click', openTxModal);
+  btnMobileAddTx?.addEventListener('click', openTxModal);
+  btnCloseModal?.addEventListener('click', closeTxModal);
+  btnCancelModal?.addEventListener('click', closeTxModal);
 
-  // Modal Android Trigger
   const modalAndroid = document.getElementById('modalAndroid');
   const btnOpenAndroid = document.getElementById('btnOpenAndroidModal');
   const btnCloseAndroid = document.getElementById('btnCloseAndroidModal');
   const btnCloseAndroidBtn = document.getElementById('btnCloseAndroidModalBtn');
 
-  btnOpenAndroid.addEventListener('click', () => modalAndroid.classList.remove('hidden'));
-  btnCloseAndroid.addEventListener('click', () => modalAndroid.classList.add('hidden'));
-  btnCloseAndroidBtn.addEventListener('click', () => modalAndroid.classList.add('hidden'));
+  btnOpenAndroid?.addEventListener('click', () => modalAndroid.classList.remove('hidden'));
+  btnCloseAndroid?.addEventListener('click', () => modalAndroid.classList.add('hidden'));
+  btnCloseAndroidBtn?.addEventListener('click', () => modalAndroid.classList.add('hidden'));
 
-  // Close modals on backdrop click
   [modalTx, modalAndroid].forEach(modal => {
-    modal.addEventListener('click', (e) => {
+    modal?.addEventListener('click', (e) => {
       if (e.target === modal) {
         modal.classList.add('hidden');
       }
     });
   });
 
-  // Print Report Button
-  document.getElementById('btnPrintReport').addEventListener('click', () => {
+  document.getElementById('btnPrintReport')?.addEventListener('click', () => {
     window.print();
   });
 
-  // Reset Data to Default
-  document.getElementById('btnResetData').addEventListener('click', () => {
+  document.getElementById('btnResetData')?.addEventListener('click', () => {
     if (confirm('Kembalikan data kas dan 27 siswa ke status awal bawaan pabrik?')) {
       localStorage.removeItem(STORAGE_KEY);
       loadState();
@@ -678,16 +782,15 @@ function setupNavigationAndModals() {
     }
   });
 
-  // Filter Listeners
-  document.getElementById('searchSiswaInput').addEventListener('input', renderStudents);
-  document.getElementById('filterStatusSiswa').addEventListener('change', renderStudents);
-  document.getElementById('searchMutasiInput').addEventListener('input', renderTransactions);
-  document.getElementById('filterTipeMutasi').addEventListener('change', renderTransactions);
-  document.getElementById('filterKategoriMutasi').addEventListener('change', renderTransactions);
+  document.getElementById('searchSiswaInput')?.addEventListener('input', renderStudents);
+  document.getElementById('filterStatusSiswa')?.addEventListener('change', renderStudents);
+  document.getElementById('searchMutasiInput')?.addEventListener('input', renderTransactions);
+  document.getElementById('filterTipeMutasi')?.addEventListener('change', renderTransactions);
+  document.getElementById('filterKategoriMutasi')?.addEventListener('change', renderTransactions);
 }
 
 // ==========================================================================
-// 9. PWA & Service Worker Registration
+// 10. PWA Setup
 // ==========================================================================
 function setupPWA() {
   if ('serviceWorker' in navigator) {
@@ -708,40 +811,33 @@ function setupPWA() {
     if (pwaBanner) pwaBanner.classList.remove('hidden');
   });
 
-  if (btnInstall) {
-    btnInstall.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        showToast('Terima kasih telah memasang KAS-TKJ1!', 'success');
-      }
-      deferredPrompt = null;
-      pwaBanner.classList.add('hidden');
-    });
-  }
+  btnInstall?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      showToast('Terima kasih telah memasang KAS-TKJ1!', 'success');
+    }
+    deferredPrompt = null;
+    pwaBanner.classList.add('hidden');
+  });
 
-  if (btnDismiss) {
-    btnDismiss.addEventListener('click', () => {
-      pwaBanner.classList.add('hidden');
-    });
-  }
+  btnDismiss?.addEventListener('click', () => {
+    pwaBanner.classList.add('hidden');
+  });
 }
 
 // ==========================================================================
-// 10. Toast Notification & Helpers
+// 11. Toast & Escaper
 // ==========================================================================
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
+  if (!container) return;
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.textContent = message;
-
   container.appendChild(toast);
-
-  setTimeout(() => {
-    toast.remove();
-  }, 3500);
+  setTimeout(() => toast.remove(), 3500);
 }
 
 function escapeHtml(str) {
@@ -755,7 +851,7 @@ function escapeHtml(str) {
 }
 
 // ==========================================================================
-// 11. App Bootstrapper
+// Bootstrapper
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
   loadState();
@@ -765,5 +861,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCategoryBreakdown();
   setupFormHandler();
   setupNavigationAndModals();
+  setupBackupAndExport();
   setupPWA();
 });
