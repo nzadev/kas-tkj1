@@ -653,19 +653,36 @@ function setupFormHandler() {
     });
   });
 
-  radioTipe.forEach(radio => {
-    radio.addEventListener('change', () => {
-      if (radio.value === 'masuk') {
+  function updateFormFields() {
+    const tipe = Array.from(radioTipe).find(r => r.checked)?.value || 'masuk';
+    const kat = selectKategori.value;
+
+    if (tipe === 'masuk') {
+      groupSiswa.classList.remove('hidden');
+      groupPihakLuar.classList.add('hidden');
+    } else {
+      if (kat === 'Iuran Kas Siswa') {
         groupSiswa.classList.remove('hidden');
         groupPihakLuar.classList.add('hidden');
-        selectKategori.value = 'Iuran Kas Siswa';
       } else {
         groupSiswa.classList.add('hidden');
         groupPihakLuar.classList.remove('hidden');
+      }
+    }
+  }
+
+  radioTipe.forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radio.value === 'masuk') {
+        selectKategori.value = 'Iuran Kas Siswa';
+      } else {
         selectKategori.value = 'Operasional Kelas';
       }
+      updateFormFields();
     });
   });
+
+  selectKategori.addEventListener('change', updateFormFields);
 
   function validateNominal() {
     const val = Number(inputNominal.value);
@@ -728,8 +745,21 @@ function setupFormHandler() {
         pihak = 'Iuran Kas Bersama';
       }
     } else {
-      const pihakInput = document.getElementById('inputPihakLuar').value.trim();
-      pihak = pihakInput || 'Belanja Operasional';
+      const selectedStdId = selectSiswa.value;
+      if (kategori === 'Iuran Kas Siswa' && selectedStdId) {
+        const student = state.students.find(s => s.id === selectedStdId);
+        if (student) {
+          pihak = student.nama;
+          studentId = student.id;
+          student.terbayar = Math.max(0, student.terbayar - nominal);
+          if (student.terbayar < TARIF_IURAN_TARGET) {
+            student.status = 'Nunggak';
+          }
+        }
+      } else {
+        const pihakInput = document.getElementById('inputPihakLuar').value.trim();
+        pihak = pihakInput || 'Belanja Operasional';
+      }
     }
 
     const newTx = {
