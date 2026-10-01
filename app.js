@@ -48,97 +48,6 @@ const INITIAL_STUDENTS = [
   { id: 'std-27', nama: 'Shapa Alipiandi', gender: 'L', kelompok: 'Kelompok 5', terbayar: 10000, status: 'Nunggak' }
 ];
 
-// Koleksi Preset Nama Siswa (Mendukung Privasi & Fleksibilitas Penggunaan)
-const PRESET_NAMES = {
-  asli: [
-    { id: 'std-01', nama: 'FYARA TUZ ZAHRA', gender: 'P' },
-    { id: 'std-02', nama: 'Mutia Sara', gender: 'P' },
-    { id: 'std-03', nama: 'Jesen Toms Lasi', gender: 'L' },
-    { id: 'std-04', nama: 'Masbayu', gender: 'L' },
-    { id: 'std-05', nama: 'Adhani Wahyudi', gender: 'L' },
-    { id: 'std-06', nama: 'DEA ANATASYA PUTRI', gender: 'P' },
-    { id: 'std-07', nama: 'Atha Salsabila Agustine', gender: 'P' },
-    { id: 'std-08', nama: 'Ahmad Fitoni', gender: 'L' },
-    { id: 'std-09', nama: 'Ilham Saputra', gender: 'L' },
-    { id: 'std-10', nama: 'Raditya Damariz Gautama', gender: 'L' },
-    { id: 'std-11', nama: 'NAILA NUR SALSABILA PUTRI', gender: 'P' },
-    { id: 'std-12', nama: 'Izzabela Maulina', gender: 'P' },
-    { id: 'std-13', nama: 'Dwi Nur Ichrom', gender: 'L' },
-    { id: 'std-14', nama: 'Mochammad Farrel Ramaulia', gender: 'L' },
-    { id: 'std-15', nama: 'Muhamad Holyone', gender: 'L' },
-    { id: 'std-16', nama: 'NABIL ZAENAL ASSYQIN', gender: 'L' },
-    { id: 'std-17', nama: 'Kaila Kanzha', gender: 'P' },
-    { id: 'std-18', nama: 'Keisya Tania Sibarani', gender: 'P' },
-    { id: 'std-19', nama: 'Muhamad Irpan', gender: 'L' },
-    { id: 'std-20', nama: 'Raihan Mufadzal Zaki', gender: 'L' },
-    { id: 'std-21', nama: 'Dzakii Pratama Haritahta', gender: 'L' },
-    { id: 'std-22', nama: 'SEPTIAN ROBERTO SILALAHI', gender: 'L' },
-    { id: 'std-23', nama: 'Anna Tasya', gender: 'P' },
-    { id: 'std-24', nama: 'Ratu Habibah', gender: 'P' },
-    { id: 'std-25', nama: 'Muhammad Fariz Ramadhan', gender: 'L' },
-    { id: 'std-26', nama: 'Raju Arya Ramana', gender: 'L' },
-    { id: 'std-27', nama: 'Shapa Alipiandi', gender: 'L' }
-  ],
-  dummy: [
-    { id: 'std-01', nama: 'Amanda Zahra Putri', gender: 'P' },
-    { id: 'std-02', nama: 'Alya Rahmadani', gender: 'P' },
-    { id: 'std-03', nama: 'Aditya Pratama', gender: 'L' },
-    { id: 'std-04', nama: 'Andika Saputra', gender: 'L' },
-    { id: 'std-05', nama: 'Bagus Setiawan', gender: 'L' },
-    { id: 'std-06', nama: 'Citra Lestari Dewi', gender: 'P' },
-    { id: 'std-07', nama: 'Dian Anggraini', gender: 'P' },
-    { id: 'std-08', nama: 'Daffa Al Ghifari', gender: 'L' },
-    { id: 'std-09', nama: 'Dimas Wahyudi', gender: 'L' },
-    { id: 'std-10', nama: 'Fajar Kurniawan', gender: 'L' },
-    { id: 'std-11', nama: 'Hana Amelia Sari', gender: 'P' },
-    { id: 'std-12', nama: 'Indah Puspitasari', gender: 'P' },
-    { id: 'std-13', nama: 'Gilang Ramadhan', gender: 'L' },
-    { id: 'std-14', nama: 'Ilham Maulana', gender: 'L' },
-    { id: 'std-15', nama: 'Kevin Sanjaya', gender: 'L' },
-    { id: 'std-16', nama: 'Larasati Ayu Dewi', gender: 'P' },
-    { id: 'std-17', nama: 'Nabila Syakieb', gender: 'P' },
-    { id: 'std-18', nama: 'Putri Maharani', gender: 'P' },
-    { id: 'std-19', nama: 'Muhammad Rizki Pratama', gender: 'L' },
-    { id: 'std-20', nama: 'Nanda Eka Putra', gender: 'L' },
-    { id: 'std-21', nama: 'Raditya Bagaskara', gender: 'L' },
-    { id: 'std-22', nama: 'Rendy Syahputra', gender: 'L' },
-    { id: 'std-23', nama: 'Rina Wulandari', gender: 'P' },
-    { id: 'std-24', nama: 'Siti Nurhaliza', gender: 'P' },
-    { id: 'std-25', nama: 'Rahmat Hidayatullah', gender: 'L' },
-    { id: 'std-26', nama: 'Tegar Pangestu', gender: 'L' },
-    { id: 'std-27', nama: 'Yoga Pratama', gender: 'L' }
-  ],
-  anonim: [
-    { id: 'std-01', nama: 'Siswa 01', gender: 'P' },
-    { id: 'std-02', nama: 'Siswa 02', gender: 'P' },
-    { id: 'std-03', nama: 'Siswa 03', gender: 'L' },
-    { id: 'std-04', nama: 'Siswa 04', gender: 'L' },
-    { id: 'std-05', nama: 'Siswa 05', gender: 'L' },
-    { id: 'std-06', nama: 'Siswa 06', gender: 'P' },
-    { id: 'std-07', nama: 'Siswa 07', gender: 'P' },
-    { id: 'std-08', nama: 'Siswa 08', gender: 'L' },
-    { id: 'std-09', nama: 'Siswa 09', gender: 'L' },
-    { id: 'std-10', nama: 'Siswa 10', gender: 'L' },
-    { id: 'std-11', nama: 'Siswa 11', gender: 'P' },
-    { id: 'std-12', nama: 'Siswa 12', gender: 'P' },
-    { id: 'std-13', nama: 'Siswa 13', gender: 'L' },
-    { id: 'std-14', nama: 'Siswa 14', gender: 'L' },
-    { id: 'std-15', nama: 'Siswa 15', gender: 'L' },
-    { id: 'std-16', nama: 'Siswa 16', gender: 'P' },
-    { id: 'std-17', nama: 'Siswa 17', gender: 'P' },
-    { id: 'std-18', nama: 'Siswa 18', gender: 'P' },
-    { id: 'std-19', nama: 'Siswa 19', gender: 'L' },
-    { id: 'std-20', nama: 'Siswa 20', gender: 'L' },
-    { id: 'std-21', nama: 'Siswa 21', gender: 'L' },
-    { id: 'std-22', nama: 'Siswa 22', gender: 'L' },
-    { id: 'std-23', nama: 'Siswa 23', gender: 'P' },
-    { id: 'std-24', nama: 'Siswa 24', gender: 'P' },
-    { id: 'std-25', nama: 'Siswa 25', gender: 'L' },
-    { id: 'std-26', nama: 'Siswa 26', gender: 'L' },
-    { id: 'std-27', nama: 'Siswa 27', gender: 'L' }
-  ]
-};
-
 // Transaksi Riil Bawaan Awal (Sinkron 100% dengan Total Uang Iuran Siswa)
 // Total Masuk = 135k + 130k + 115k + 100k = Rp 480.000 (Pas dengan jumlah iuran 27 siswa)
 // Total Keluar = 28k + 45k + 50k + 22k = Rp 145.000
@@ -230,8 +139,7 @@ const INITIAL_TRANSACTIONS = [
 let state = {
   students: [],
   transactions: [],
-  recentCustomNominals: [],
-  activeNamePreset: 'asli'
+  recentCustomNominals: []
 };
 
 let deferredPrompt = null;
@@ -245,14 +153,16 @@ function loadState() {
     if (rawData) {
       const parsed = JSON.parse(rawData);
       state.students = parsed.students || INITIAL_STUDENTS;
+      // Jika pernah memilih mode dummy / anonim sebelumnya, kembalikan nama siswa ke nama asli kelas
+      if (parsed.activeNamePreset === 'dummy' || parsed.activeNamePreset === 'anonim' || state.students[0]?.nama === 'Amanda Zahra Putri' || state.students[0]?.nama === 'Siswa 01') {
+        state.students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
+      }
       state.transactions = parsed.transactions || INITIAL_TRANSACTIONS;
       state.recentCustomNominals = Array.isArray(parsed.recentCustomNominals) ? parsed.recentCustomNominals : [];
-      state.activeNamePreset = parsed.activeNamePreset || 'asli';
     } else {
       state.students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
       state.transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
       state.recentCustomNominals = [];
-      state.activeNamePreset = 'asli';
       saveState();
     }
   } catch (error) {
@@ -260,7 +170,6 @@ function loadState() {
     state.students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
     state.transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
     state.recentCustomNominals = [];
-    state.activeNamePreset = 'asli';
   }
 }
 
@@ -359,39 +268,6 @@ function renderDashboard() {
   document.getElementById('textSiswaNunggak').textContent = `${totals.siswaNunggak} siswa nunggak kas`;
 }
 
-// Mengganti Nama 27 Siswa Berdasarkan Preset (Privasi / Dummy / Asli)
-function applyNamePreset(presetKey) {
-  const targetPreset = PRESET_NAMES[presetKey];
-  if (!targetPreset) return;
-
-  targetPreset.forEach(item => {
-    const student = state.students.find(s => s.id === item.id);
-    if (student) {
-      const oldName = student.nama;
-      const newName = item.nama;
-      student.nama = newName;
-      student.gender = item.gender;
-
-      state.transactions.forEach(tx => {
-        if (tx.studentId === student.id || (oldName && tx.pihak === oldName)) {
-          tx.pihak = newName;
-          tx.keterangan = tx.keterangan.replace(oldName, newName);
-        }
-      });
-    }
-  });
-
-  state.activeNamePreset = presetKey;
-  saveState();
-  renderStudents();
-  renderTransactions();
-
-  const label = presetKey === 'asli' 
-    ? 'Nama Kelas Asli (XII TKJ 1)' 
-    : (presetKey === 'dummy' ? 'Nama Samaran / Dummy (Privasi)' : 'Nomor Absen Netral (Siswa 01-27)');
-  showToast(`Berhasil beralih ke: ${label}!`, 'success');
-}
-
 // ==========================================================================
 // 4. Render Monitoring 27 Siswa
 // ==========================================================================
@@ -400,11 +276,6 @@ function renderStudents() {
   const searchVal = (document.getElementById('searchSiswaInput')?.value || '').toLowerCase().trim();
   const filterVal = document.getElementById('filterStatusSiswa')?.value || 'all';
   const sortVal = document.getElementById('sortSiswa')?.value || 'abjad';
-
-  const selectPreset = document.getElementById('presetNamaSiswa');
-  if (selectPreset && state.activeNamePreset) {
-    selectPreset.value = state.activeNamePreset;
-  }
 
   const filtered = state.students.filter(student => {
     const matchSearch = student.nama.toLowerCase().includes(searchVal);
@@ -1208,7 +1079,6 @@ function setupNavigationAndModals() {
       }
     });
 
-    state.activeNamePreset = 'custom';
     saveState();
     renderStudents();
     renderTransactions();
@@ -1240,7 +1110,6 @@ function setupNavigationAndModals() {
     if (confirm('Kembalikan data kas dan 27 siswa ke status awal bawaan pabrik?')) {
       localStorage.removeItem(STORAGE_KEY);
       loadState();
-      state.activeNamePreset = 'asli';
       renderDashboard();
       renderStudents();
       renderTransactions();
@@ -1253,9 +1122,6 @@ function setupNavigationAndModals() {
   document.getElementById('searchSiswaInput')?.addEventListener('input', renderStudents);
   document.getElementById('filterStatusSiswa')?.addEventListener('change', renderStudents);
   document.getElementById('sortSiswa')?.addEventListener('change', renderStudents);
-  document.getElementById('presetNamaSiswa')?.addEventListener('change', (e) => {
-    applyNamePreset(e.target.value);
-  });
   document.getElementById('searchMutasiInput')?.addEventListener('input', renderTransactions);
   document.getElementById('filterTipeMutasi')?.addEventListener('change', renderTransactions);
   document.getElementById('filterKategoriMutasi')?.addEventListener('change', renderTransactions);
