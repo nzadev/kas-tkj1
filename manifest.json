@@ -1,0 +1,19 @@
+{
+  "name": "KAS-TKJ1 - Sistem Kas Digital XII TKJ 1",
+  "short_name": "Kas TKJ1",
+  "description": "Sistem Informasi Kas & Monitoring Iuran Kelas XII TKJ 1 SMK Kartika X-1",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
