@@ -342,10 +342,10 @@ function renderStudents() {
             <button 
               type="button" 
               class="btn btn-sm btn-outline"
-              onclick="quickPayStudent('${student.id}', 10000)"
-              title="Catat bayar iuran Rp 10.000"
+              onclick="openCustomPayModal('${student.id}')"
+              title="Input nominal bebas/manual (6k, 7k, 8k, dll)"
             >
-              +10k
+              ✏️ Manual
             </button>
           </div>
         </td>
@@ -353,6 +353,25 @@ function renderStudents() {
     `;
   }).join('');
 }
+
+// Open Modal Custom / Manual Payment (Bisa 6k, 7k, 8k, dll)
+window.openCustomPayModal = function(studentId) {
+  const student = state.students.find(s => s.id === studentId);
+  if (!student) return;
+
+  document.getElementById('customPayStudentId').value = student.id;
+  document.getElementById('customPayStudentName').textContent = student.nama;
+  document.getElementById('customPayStudentInfo').textContent = `Kas Terkumpul: ${formatRupiah(student.terbayar)} (${student.status})`;
+  document.getElementById('customPayNominal').value = '';
+  document.getElementById('errorCustomNominal').textContent = '';
+  document.getElementById('customPayKeterangan').value = `Iuran kas siswa ${student.nama}`;
+
+  const radios = document.getElementsByName('customPayAction');
+  if (radios.length > 0) radios[0].checked = true;
+
+  document.getElementById('modalCustomPay')?.classList.remove('hidden');
+  setTimeout(() => document.getElementById('customPayNominal')?.focus(), 120);
+};
 
 // Quick Payment Action (Tambah Uang Iuran)
 window.quickPayStudent = function(studentId, nominalTambah = 5000) {
@@ -835,7 +854,100 @@ function setupNavigationAndModals() {
   btnCloseAndroid?.addEventListener('click', () => modalAndroid.classList.add('hidden'));
   btnCloseAndroidBtn?.addEventListener('click', () => modalAndroid.classList.add('hidden'));
 
-  [modalTx, modalAndroid].forEach(modal => {
+  // Modal Custom Pay Listeners
+  const modalCustomPay = document.getElementById('modalCustomPay');
+  const btnCloseCustomPay = document.getElementById('btnCloseCustomPayModal');
+  const btnCancelCustomPay = document.getElementById('btnCancelCustomPayModal');
+  const formCustomPay = document.getElementById('formCustomPay');
+
+  const closeCustomModal = () => modalCustomPay?.classList.add('hidden');
+  btnCloseCustomPay?.addEventListener('click', closeCustomModal);
+  btnCancelCustomPay?.addEventListener('click', closeCustomModal);
+
+  // Preset Chips for Custom Pay
+  document.querySelectorAll('.btn-chip-custom').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const inputNom = document.getElementById('customPayNominal');
+      if (inputNom && btn.dataset.customNom) {
+        inputNom.value = btn.dataset.customNom;
+        document.getElementById('errorCustomNominal').textContent = '';
+      }
+    });
+  });
+
+  // Submit Handler for Custom Pay Form
+  formCustomPay?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const studentId = document.getElementById('customPayStudentId').value;
+    const inputNom = document.getElementById('customPayNominal');
+    const errNom = document.getElementById('errorCustomNominal');
+    const nominal = Number(inputNom.value);
+
+    if (!nominal || nominal < 500) {
+      errNom.textContent = 'Nominal minimal Rp 500 dan harus berupa angka!';
+      return;
+    }
+
+    const action = Array.from(document.getElementsByName('customPayAction')).find(r => r.checked)?.value || 'tambah';
+    const student = state.students.find(s => s.id === studentId);
+    if (!student) return;
+
+    const keteranganInput = document.getElementById('customPayKeterangan').value.trim();
+    const today = new Date().toISOString().split('T')[0];
+
+    if (action === 'tambah') {
+      student.terbayar += nominal;
+      if (student.terbayar >= TARIF_IURAN_TARGET) {
+        student.status = 'Lunas';
+      }
+
+      const newTx = {
+        id: 'tx-' + Date.now(),
+        tanggal: today,
+        tipe: 'masuk',
+        kategori: 'Iuran Kas Siswa',
+        keterangan: keteranganInput || `Iuran kas manual siswa ${student.nama} (+${formatRupiah(nominal)})`,
+        pihak: student.nama,
+        nominal: nominal,
+        studentId: student.id
+      };
+      state.transactions.unshift(newTx);
+      showToast(`Iuran ${formatRupiah(nominal)} untuk ${student.nama} berhasil ditambahkan!`, 'success');
+    } else {
+      if (student.terbayar <= 0) {
+        errNom.textContent = `Kas ${student.nama} sudah Rp 0, tidak bisa dikurangi!`;
+        return;
+      }
+      const realNominal = Math.min(student.terbayar, nominal);
+      student.terbayar -= realNominal;
+      if (student.terbayar < TARIF_IURAN_TARGET) {
+        student.status = 'Nunggak';
+      }
+
+      const newTx = {
+        id: 'tx-' + Date.now(),
+        tanggal: today,
+        tipe: 'keluar',
+        kategori: 'Iuran Kas Siswa',
+        keterangan: keteranganInput || `Koreksi / Pengurangan iuran kas siswa ${student.nama} (-${formatRupiah(realNominal)})`,
+        pihak: student.nama,
+        nominal: realNominal,
+        studentId: student.id
+      };
+      state.transactions.unshift(newTx);
+      showToast(`Iuran ${student.nama} berhasil dikurangi ${formatRupiah(realNominal)}!`, 'warning');
+    }
+
+    saveState();
+    renderDashboard();
+    renderStudents();
+    renderTransactions();
+    renderCategoryBreakdown();
+
+    closeCustomModal();
+  });
+
+  [modalTx, modalAndroid, modalCustomPay].forEach(modal => {
     modal?.addEventListener('click', (e) => {
       if (e.target === modal) {
         modal.classList.add('hidden');
