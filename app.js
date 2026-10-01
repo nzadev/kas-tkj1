@@ -4,136 +4,52 @@
  * Kelompok 4: Nabil Zaenal Assyqin (Anchor), Kaila, Keisya, Irpan, Raihan, Dzakii
  */
 
-const STORAGE_KEY = 'kas_tkj1_storage_v2';
+const STORAGE_KEY = 'kas_tkj1_storage_v3';
 const TARIF_IURAN_TARGET = 20000; // Target bulanan (Rp 5.000 x 4 minggu)
 
 // 27 Nama Siswa Riil Sesuai Hasil Undian Resmi di Lembar Tugas Pak Allan
-// Total Terkumpul: 20 Lunas (Rp 20.000) + 3 @ 15.000 + 3 @ 10.000 + 1 @ 5.000 = Rp 480.000 (SINKRON 100%)
+// Kondisi Awal Bersih: Semua siswa mulai dari Rp 0 (Nunggak / Belum Bayar)
 const INITIAL_STUDENTS = [
   // Kelompok 1
-  { id: 'std-01', nama: 'FYARA TUZ ZAHRA', gender: 'P', kelompok: 'Kelompok 1', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-02', nama: 'Mutia Sara', gender: 'P', kelompok: 'Kelompok 1', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-03', nama: 'Jesen Toms Lasi', gender: 'L', kelompok: 'Kelompok 1', terbayar: 10000, status: 'Nunggak' },
-  { id: 'std-04', nama: 'Masbayu', gender: 'L', kelompok: 'Kelompok 1', terbayar: 15000, status: 'Nunggak' },
-  { id: 'std-05', nama: 'Adhani Wahyudi', gender: 'L', kelompok: 'Kelompok 1', terbayar: 20000, status: 'Lunas' },
+  { id: 'std-01', nama: 'FYARA TUZ ZAHRA', gender: 'P', kelompok: 'Kelompok 1', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-02', nama: 'Mutia Sara', gender: 'P', kelompok: 'Kelompok 1', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-03', nama: 'Jesen Toms Lasi', gender: 'L', kelompok: 'Kelompok 1', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-04', nama: 'Masbayu', gender: 'L', kelompok: 'Kelompok 1', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-05', nama: 'Adhani Wahyudi', gender: 'L', kelompok: 'Kelompok 1', terbayar: 0, status: 'Nunggak' },
 
   // Kelompok 2
-  { id: 'std-06', nama: 'DEA ANATASYA PUTRI', gender: 'P', kelompok: 'Kelompok 2', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-07', nama: 'Atha Salsabila Agustine', gender: 'P', kelompok: 'Kelompok 2', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-08', nama: 'Ahmad Fitoni', gender: 'L', kelompok: 'Kelompok 2', terbayar: 5000, status: 'Nunggak' },
-  { id: 'std-09', nama: 'Ilham Saputra', gender: 'L', kelompok: 'Kelompok 2', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-10', nama: 'Raditya Damariz Gautama', gender: 'L', kelompok: 'Kelompok 2', terbayar: 15000, status: 'Nunggak' },
+  { id: 'std-06', nama: 'DEA ANATASYA PUTRI', gender: 'P', kelompok: 'Kelompok 2', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-07', nama: 'Atha Salsabila Agustine', gender: 'P', kelompok: 'Kelompok 2', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-08', nama: 'Ahmad Fitoni', gender: 'L', kelompok: 'Kelompok 2', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-09', nama: 'Ilham Saputra', gender: 'L', kelompok: 'Kelompok 2', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-10', nama: 'Raditya Damariz Gautama', gender: 'L', kelompok: 'Kelompok 2', terbayar: 0, status: 'Nunggak' },
 
   // Kelompok 3
-  { id: 'std-11', nama: 'NAILA NUR SALSABILA PUTRI', gender: 'P', kelompok: 'Kelompok 3', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-12', nama: 'Izzabela Maulina', gender: 'P', kelompok: 'Kelompok 3', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-13', nama: 'Dwi Nur Ichrom', gender: 'L', kelompok: 'Kelompok 3', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-14', nama: 'Mochammad Farrel Ramaulia', gender: 'L', kelompok: 'Kelompok 3', terbayar: 10000, status: 'Nunggak' },
-  { id: 'std-15', nama: 'Muhamad Holyone', gender: 'L', kelompok: 'Kelompok 3', terbayar: 20000, status: 'Lunas' },
+  { id: 'std-11', nama: 'NAILA NUR SALSABILA PUTRI', gender: 'P', kelompok: 'Kelompok 3', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-12', nama: 'Izzabela Maulina', gender: 'P', kelompok: 'Kelompok 3', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-13', nama: 'Dwi Nur Ichrom', gender: 'L', kelompok: 'Kelompok 3', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-14', nama: 'Mochammad Farrel Ramaulia', gender: 'L', kelompok: 'Kelompok 3', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-15', nama: 'Muhamad Holyone', gender: 'L', kelompok: 'Kelompok 3', terbayar: 0, status: 'Nunggak' },
 
   // Kelompok 4 (Kelompok Pembuat)
-  { id: 'std-16', nama: 'NABIL ZAENAL ASSYQIN', gender: 'L', kelompok: 'Kelompok 4', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-17', nama: 'Kaila Kanzha', gender: 'P', kelompok: 'Kelompok 4', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-18', nama: 'Keisya Tania Sibarani', gender: 'P', kelompok: 'Kelompok 4', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-19', nama: 'Muhamad Irpan', gender: 'L', kelompok: 'Kelompok 4', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-20', nama: 'Raihan Mufadzal Zaki', gender: 'L', kelompok: 'Kelompok 4', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-21', nama: 'Dzakii Pratama Haritahta', gender: 'L', kelompok: 'Kelompok 4', terbayar: 20000, status: 'Lunas' },
+  { id: 'std-16', nama: 'NABIL ZAENAL ASSYQIN', gender: 'L', kelompok: 'Kelompok 4', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-17', nama: 'Kaila Kanzha', gender: 'P', kelompok: 'Kelompok 4', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-18', nama: 'Keisya Tania Sibarani', gender: 'P', kelompok: 'Kelompok 4', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-19', nama: 'Muhamad Irpan', gender: 'L', kelompok: 'Kelompok 4', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-20', nama: 'Raihan Mufadzal Zaki', gender: 'L', kelompok: 'Kelompok 4', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-21', nama: 'Dzakii Pratama Haritahta', gender: 'L', kelompok: 'Kelompok 4', terbayar: 0, status: 'Nunggak' },
 
   // Kelompok 5
-  { id: 'std-22', nama: 'SEPTIAN ROBERTO SILALAHI', gender: 'L', kelompok: 'Kelompok 5', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-23', nama: 'Anna Tasya', gender: 'P', kelompok: 'Kelompok 5', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-24', nama: 'Ratu Habibah', gender: 'P', kelompok: 'Kelompok 5', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-25', nama: 'Muhammad Fariz Ramadhan', gender: 'L', kelompok: 'Kelompok 5', terbayar: 15000, status: 'Nunggak' },
-  { id: 'std-26', nama: 'Raju Arya Ramana', gender: 'L', kelompok: 'Kelompok 5', terbayar: 20000, status: 'Lunas' },
-  { id: 'std-27', nama: 'Shapa Alipiandi', gender: 'L', kelompok: 'Kelompok 5', terbayar: 10000, status: 'Nunggak' }
+  { id: 'std-22', nama: 'SEPTIAN ROBERTO SILALAHI', gender: 'L', kelompok: 'Kelompok 5', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-23', nama: 'Anna Tasya', gender: 'P', kelompok: 'Kelompok 5', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-24', nama: 'Ratu Habibah', gender: 'P', kelompok: 'Kelompok 5', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-25', nama: 'Muhammad Fariz Ramadhan', gender: 'L', kelompok: 'Kelompok 5', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-26', nama: 'Raju Arya Ramana', gender: 'L', kelompok: 'Kelompok 5', terbayar: 0, status: 'Nunggak' },
+  { id: 'std-27', nama: 'Shapa Alipiandi', gender: 'L', kelompok: 'Kelompok 5', terbayar: 0, status: 'Nunggak' }
 ];
 
-// Transaksi Riil Bawaan Awal (Sinkron 100% dengan Total Uang Iuran Siswa)
-// Total Masuk = 135k + 130k + 115k + 100k = Rp 480.000 (Pas dengan jumlah iuran 27 siswa)
-// Total Keluar = 28k + 45k + 50k + 22k = Rp 145.000
-// Saldo Kas Sisa = Rp 480.000 - Rp 145.000 = Rp 335.000
-const INITIAL_TRANSACTIONS = [
-  {
-    id: 'tx-101',
-    tanggal: '2026-09-02',
-    tipe: 'masuk',
-    kategori: 'Iuran Kas Siswa',
-    keterangan: 'Iuran Kas Minggu ke-1 (27 Siswa @ Rp 5.000)',
-    pihak: 'Bendahara Kelas',
-    nominal: 135000,
-    studentId: null
-  },
-  {
-    id: 'tx-102',
-    tanggal: '2026-09-05',
-    tipe: 'keluar',
-    kategori: 'Operasional Kelas',
-    keterangan: 'Beli 3 Spidol Snowman Boardmarker + Isi Ulang Tinta',
-    pihak: 'Fotokopi & ATK Berkah',
-    nominal: 28000,
-    studentId: null
-  },
-  {
-    id: 'tx-103',
-    tanggal: '2026-09-09',
-    tipe: 'masuk',
-    kategori: 'Iuran Kas Siswa',
-    keterangan: 'Iuran Kas Minggu ke-2 (26 Siswa @ Rp 5.000)',
-    pihak: 'Bendahara Kelas',
-    nominal: 130000,
-    studentId: null
-  },
-  {
-    id: 'tx-104',
-    tanggal: '2026-09-12',
-    tipe: 'keluar',
-    kategori: 'Praktik Lab TKJ',
-    keterangan: 'Beli 1 Pack Konektor RJ45 Cat6 (50 Pcs) Ujian Jaringan',
-    pihak: 'Toko Komputer Harco',
-    nominal: 45000,
-    studentId: null
-  },
-  {
-    id: 'tx-105',
-    tanggal: '2026-09-16',
-    tipe: 'masuk',
-    kategori: 'Iuran Kas Siswa',
-    keterangan: 'Iuran Kas Minggu ke-3 (23 Siswa @ Rp 5.000)',
-    pihak: 'Bendahara Kelas',
-    nominal: 115000,
-    studentId: null
-  },
-  {
-    id: 'tx-106',
-    tanggal: '2026-09-19',
-    tipe: 'keluar',
-    kategori: 'Sosial & Jenguk',
-    keterangan: 'Uang santunan & jenguk teman sekelas sakit',
-    pihak: 'Sie Sosial Kelas',
-    nominal: 50000,
-    studentId: null
-  },
-  {
-    id: 'tx-107',
-    tanggal: '2026-09-23',
-    tipe: 'masuk',
-    kategori: 'Iuran Kas Siswa',
-    keterangan: 'Iuran Kas Minggu ke-4 (20 Siswa Lunas @ Rp 5.000)',
-    pihak: 'Bendahara Kelas',
-    nominal: 100000,
-    studentId: null
-  },
-  {
-    id: 'tx-108',
-    tanggal: '2026-09-25',
-    tipe: 'keluar',
-    kategori: 'Operasional Kelas',
-    keterangan: 'Fotokopi modul materi Uji Kompetensi Kejuruan (UKK)',
-    pihak: 'Koperasi SMK Kartika X-1',
-    nominal: 22000,
-    studentId: null
-  }
-];
+// Buku Transaksi Bawaan Awal: Bersih Rp 0 (0 Transaksi)
+const INITIAL_TRANSACTIONS = [];
 
 // Global State
 let state = {
@@ -152,23 +68,23 @@ function loadState() {
     const rawData = localStorage.getItem(STORAGE_KEY);
     if (rawData) {
       const parsed = JSON.parse(rawData);
-      state.students = parsed.students || INITIAL_STUDENTS;
-      // Jika pernah memilih mode dummy / anonim sebelumnya, kembalikan nama siswa ke nama asli kelas
-      if (parsed.activeNamePreset === 'dummy' || parsed.activeNamePreset === 'anonim' || state.students[0]?.nama === 'Amanda Zahra Putri' || state.students[0]?.nama === 'Siswa 01') {
-        state.students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
-      }
-      state.transactions = parsed.transactions || INITIAL_TRANSACTIONS;
+      state.students = parsed.students || JSON.parse(JSON.stringify(INITIAL_STUDENTS));
+      state.transactions = Array.isArray(parsed.transactions) ? parsed.transactions : [];
       state.recentCustomNominals = Array.isArray(parsed.recentCustomNominals) ? parsed.recentCustomNominals : [];
     } else {
       state.students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
-      state.transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+      state.transactions = [];
       state.recentCustomNominals = [];
       saveState();
+      try {
+        localStorage.removeItem('kas_tkj1_storage_v2');
+        localStorage.removeItem('kas_tkj1_storage_v1');
+      } catch (_) {}
     }
   } catch (error) {
     console.error('Gagal membaca data dari localStorage:', error);
     state.students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
-    state.transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+    state.transactions = [];
     state.recentCustomNominals = [];
   }
 }
@@ -245,8 +161,11 @@ function renderDashboard() {
   elSaldo.textContent = formatRupiah(totals.saldoKas);
 
   const badgeStatusKas = document.getElementById('badgeStatusKas');
-  if (totals.saldoKas < 50000) {
-    badgeStatusKas.textContent = '● Kritis';
+  if (totals.saldoKas === 0 && totals.totalMasuk === 0) {
+    badgeStatusKas.textContent = '● Kas Rp 0';
+    badgeStatusKas.className = 'status-indicator-badge tag-blue';
+  } else if (totals.saldoKas < 50000) {
+    badgeStatusKas.textContent = totals.saldoKas < 0 ? '● Defisit' : '● Kritis';
     badgeStatusKas.className = 'status-indicator-badge tag-red';
   } else {
     badgeStatusKas.textContent = '● Saldo Aman';
@@ -1107,7 +1026,7 @@ function setupNavigationAndModals() {
   });
 
   document.getElementById('btnResetData')?.addEventListener('click', () => {
-    if (confirm('Kembalikan data kas dan 27 siswa ke status awal bawaan pabrik?')) {
+    if (confirm('Kosongkan semua transaksi dan kembalikan kas ke Rp 0?')) {
       localStorage.removeItem(STORAGE_KEY);
       loadState();
       renderDashboard();
@@ -1115,7 +1034,7 @@ function setupNavigationAndModals() {
       renderTransactions();
       renderCategoryBreakdown();
       renderCustomRecentChips();
-      showToast('Data berhasil di-reset ke kondisi awal!', 'success');
+      showToast('Seluruh nominal kas berhasil dikosongkan ke Rp 0!', 'success');
     }
   });
 

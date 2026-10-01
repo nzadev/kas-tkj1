@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kas-tkj1-v10';
+const CACHE_NAME = 'kas-tkj1-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
