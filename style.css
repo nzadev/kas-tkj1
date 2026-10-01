@@ -737,6 +737,25 @@ body {
   display: flex;
   gap: 4px;
   justify-content: center;
+  align-items: center;
+}
+
+.btn-danger-sm {
+  background-color: #ffffff;
+  color: var(--color-danger);
+  border: 1.5px solid var(--color-danger-border);
+  padding: 4px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  min-height: 30px;
+}
+
+.btn-danger-sm:hover:not(:disabled) {
+  background-color: var(--color-danger-bg);
+  border-color: var(--color-danger);
 }
 
 .badge-status {

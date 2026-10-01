@@ -269,8 +269,7 @@ function renderStudents() {
   const filterVal = document.getElementById('filterStatusSiswa').value;
 
   const filtered = state.students.filter(student => {
-    const matchSearch = student.nama.toLowerCase().includes(searchVal) ||
-                        student.kelompok.toLowerCase().includes(searchVal);
+    const matchSearch = student.nama.toLowerCase().includes(searchVal);
     const matchFilter = (filterVal === 'all') ||
                         (filterVal === 'lunas' && student.status === 'Lunas') ||
                         (filterVal === 'nunggak' && student.status === 'Nunggak');
@@ -280,7 +279,7 @@ function renderStudents() {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align: center; padding: 32px; color: var(--color-text-muted);">
+        <td colspan="5" style="text-align: center; padding: 32px; color: var(--color-text-muted);">
           Tidak ada data siswa yang cocok dengan pencarian / filter.
         </td>
       </tr>
@@ -310,9 +309,8 @@ function renderStudents() {
             </div>
           </div>
         </td>
-        <td><span class="group-pill">${escapeHtml(student.kelompok)}</span></td>
         <td>
-          <div style="font-weight: 800; color: var(--color-text-main);">${formatRupiah(student.terbayar)}</div>
+          <div style="font-weight: 800; color: var(--color-text-main); font-variant-numeric: tabular-nums;">${formatRupiah(student.terbayar)}</div>
           <div class="mini-progress-track">
             <div class="mini-progress-bar" style="width: ${(student.terbayar / TARIF_IURAN_TARGET) * 100}%;"></div>
           </div>
@@ -326,9 +324,18 @@ function renderStudents() {
           <div class="quick-action-btns">
             <button 
               type="button" 
+              class="btn-danger-sm"
+              onclick="reduceStudentPayment('${student.id}', 5000)"
+              title="Kurangi iuran Rp 5.000 (Koreksi)"
+              ${student.terbayar <= 0 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : ''}
+            >
+              −5k
+            </button>
+            <button 
+              type="button" 
               class="btn btn-sm ${isLunas ? 'btn-outline' : 'btn-success'}"
               onclick="quickPayStudent('${student.id}', 5000)"
-              title="Catat bayar Rp 5.000"
+              title="Catat bayar iuran Rp 5.000"
             >
               +5k
             </button>
@@ -336,7 +343,7 @@ function renderStudents() {
               type="button" 
               class="btn btn-sm btn-outline"
               onclick="quickPayStudent('${student.id}', 10000)"
-              title="Catat bayar Rp 10.000"
+              title="Catat bayar iuran Rp 10.000"
             >
               +10k
             </button>
@@ -347,7 +354,7 @@ function renderStudents() {
   }).join('');
 }
 
-// Quick Payment Action
+// Quick Payment Action (Tambah Uang Iuran)
 window.quickPayStudent = function(studentId, nominalTambah = 5000) {
   const student = state.students.find(s => s.id === studentId);
   if (!student) return;
@@ -363,7 +370,7 @@ window.quickPayStudent = function(studentId, nominalTambah = 5000) {
     tanggal: today,
     tipe: 'masuk',
     kategori: 'Iuran Kas Siswa',
-    keterangan: `Iuran kas siswa ${student.nama} (${formatRupiah(nominalTambah)})`,
+    keterangan: `Iuran kas siswa ${student.nama} (+${formatRupiah(nominalTambah)})`,
     pihak: student.nama,
     nominal: nominalTambah,
     studentId: student.id
@@ -378,6 +385,46 @@ window.quickPayStudent = function(studentId, nominalTambah = 5000) {
   renderCategoryBreakdown();
 
   showToast(`Iuran ${formatRupiah(nominalTambah)} dari ${student.nama} tersimpan!`, 'success');
+};
+
+// Quick Reduction Action (Kurangi Uang Iuran / Koreksi Kas)
+window.reduceStudentPayment = function(studentId, nominalKurang = 5000) {
+  const student = state.students.find(s => s.id === studentId);
+  if (!student) return;
+
+  if (student.terbayar <= 0) {
+    showToast(`Uang iuran ${student.nama} sudah Rp 0, tidak bisa dikurangi lagi!`, 'danger');
+    return;
+  }
+
+  const nominalReal = Math.min(student.terbayar, nominalKurang);
+  student.terbayar -= nominalReal;
+  if (student.terbayar < TARIF_IURAN_TARGET) {
+    student.status = 'Nunggak';
+  }
+
+  // Catat otomatis ke buku mutasi kas sebagai koreksi/pengeluaran
+  const today = new Date().toISOString().split('T')[0];
+  const newTx = {
+    id: 'tx-' + Date.now(),
+    tanggal: today,
+    tipe: 'keluar',
+    kategori: 'Iuran Kas Siswa',
+    keterangan: `Koreksi / Pengurangan iuran kas siswa ${student.nama} (-${formatRupiah(nominalReal)})`,
+    pihak: student.nama,
+    nominal: nominalReal,
+    studentId: student.id
+  };
+
+  state.transactions.unshift(newTx);
+  saveState();
+
+  renderDashboard();
+  renderStudents();
+  renderTransactions();
+  renderCategoryBreakdown();
+
+  showToast(`Iuran ${student.nama} dikurangi ${formatRupiah(nominalReal)} (Koreksi tercatat)`, 'warning');
 };
 
 // ==========================================================================
@@ -595,7 +642,7 @@ function setupFormHandler() {
   const inputTanggal = document.getElementById('inputTanggal');
 
   selectSiswa.innerHTML = '<option value="">-- Pilih Siswa (Atau Kosongkan jika Umum) --</option>' +
-    state.students.map(s => `<option value="${s.id}">${escapeHtml(s.nama)} (${escapeHtml(s.kelompok)})</option>`).join('');
+    state.students.map(s => `<option value="${s.id}">${escapeHtml(s.nama)}</option>`).join('');
 
   inputTanggal.value = new Date().toISOString().split('T')[0];
 
